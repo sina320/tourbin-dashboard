@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TORBIN · Sales Dashboard</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f5f7fa; padding: 30px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { font-size: 26px; font-weight: 600; color: #0a2c3d; }
+        .date-badge { background: white; padding: 10px 20px; border-radius: 40px; font-size: 14px; color: #5b6f7c; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background: white; padding: 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .kpi-label { font-size: 13px; color: #6f828c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-value { font-size: 32px; font-weight: 600; color: #0a2c3d; margin-bottom: 4px; }
+        .kpi-trend { font-size: 13px; display: flex; align-items: center; gap: 4px; }
+        .trend-up { color: #0a7c71; }
+        .trend-down { color: #c24141; }
+        
+        /* Charts Row */
+        .charts-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-card { background: white; padding: 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .chart-title { font-size: 16px; font-weight: 600; color: #0a2c3d; margin-bottom: 20px; }
+        
+        /* Tables */
+        .tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .table-card { background: white; padding: 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .table-title { font-size: 16px; font-weight: 600; color: #0a2c3d; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { text-align: left; padding: 12px 8px; color: #6f828c; font-weight: 500; font-size: 12px; border-bottom: 1px solid #ecf1f5; }
+        .table td { padding: 12px 8px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+        .badge { background: #e2f0ee; color: #0a7c71; padding: 4px 10px; border-radius: 30px; font-size: 12px; display: inline-block; }
+        .badge-warning { background: #fff4e5; color: #b85e00; }
+        .badge-danger { background: #fee9e7; color: #c24141; }
+        
+        /* Alerts */
+        .alert { background: #fee9e7; color: #7f2d2a; padding: 16px 20px; border-radius: 16px; margin-bottom: 30px; border-right: 4px solid #c24141; display: flex; align-items: center; gap: 12px; }
+        .alert-success { background: #e6f7ed; color: #0b4f3a; border-right: 4px solid #0a7c71; }
+        
+        .footer { margin-top: 40px; color: #8c9ca5; font-size: 12px; text-align: center; border-top: 1px solid #ecf1f5; padding-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 TORBIN · Sales Dashboard</h1>
+            <div class="date-badge" id="dateBadge">Loading...</div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Today's Sales</div>
+                <div class="kpi-value" id="todaySales">$0</div>
+                <div class="kpi-trend" id="todayTrend"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">This Month</div>
+                <div class="kpi-value" id="monthSales">$0</div>
+                <div class="kpi-trend" id="monthTrend"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Direct Sales</div>
+                <div class="kpi-value" id="directSales">$0</div>
+                <div class="kpi-trend" id="directShare">0% of total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Commission Payable</div>
+                <div class="kpi-value" id="commissionTotal">$0</div>
+                <div class="kpi-trend" id="commissionCount">0 agents</div>
+            </div>
+        </div>
+
+        <!-- Alert: Direct Sales Zero -->
+        <div id="directAlert" class="alert" style="display: none;">
+            ⚠️ <strong>Direct sales: $0</strong> · No direct sales in last 7 days. Check website.
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">📈 Sales Trend (Last 30 Days)</div>
+                <canvas id="salesChart" style="width: 100%; height: 200px;"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🥧 Sales by Channel</div>
+                <canvas id="channelChart" style="width: 100%; height: 200px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Tables Grid -->
+        <div class="tables-grid">
+            <!-- Top Agents -->
+            <div class="table-card">
+                <div class="table-title">
+                    <span>👥 Top Agents (This Month)</span>
+                    <span style="font-size: 12px; color: #6f828c;">Commission: 10%</span>
+                </div>
+                <table class="table" id="agentsTable">
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Sales</th>
+                            <th>Transactions</th>
+                            <th>Commission</th>
+                            <th>Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agentsTableBody">
+                        <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Top OTAs -->
+            <div class="table-card">
+                <div class="table-title">
+                    <span>🌍 Top OTAs (This Month)</span>
+                </div>
+                <table class="table" id="otasTable">
+                    <thead>
+                        <tr>
+                            <th>OTA</th>
+                            <th>Sales</th>
+                            <th>Commission</th>
+                            <th>Net</th>
+                            <th>Share</th>
+                        </tr>
+                    </thead>
+                    <tbody id="otasTableBody">
+                        <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            TORBIN · Data from Firestore · Auto-updates every 5 minutes
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // TORBIN - Sales Dashboard
+        // Firebase Configuration
+        // ============================================
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGomc7oZCGf8QkQq3I_SJht7GJF6pz_5c",
+            authDomain: "tourbin-sales-dashboard-v2.firebaseapp.com",
+            projectId: "tourbin-sales-dashboard-v2",
+            storageBucket: "tourbin-sales-dashboard-v2.firebasestorage.app",
+            messagingSenderId: "827092290582",
+            appId: "1:827092290582:web:24e530b12858c615d13937"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
+        // ---------- Global Variables ----------
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const monthStart = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0];
+        
+        document.getElementById('dateBadge').innerHTML = `📆 ${todayStr}`;
+
+        // ============================================
+        // Load Dashboard Data
+        // ============================================
+
+        async function loadDashboard() {
+            try {
+                // Get all transactions
+                const snapshot = await db.collection('sales_transactions')
+                    .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
+                    .get();
+
+                const transactions = [];
+                snapshot.forEach(doc => transactions.push({ id: doc.id, ...doc.data() }));
+
+                // Calculate KPIs
+                const todaySales = transactions
+                    .filter(t => t.report_date === todayStr)
+                    .reduce((sum, t) => sum + (t.total_price_usd || 0), 0);
+
+                const monthSales = transactions
+                    .filter(t => t.report_date >= monthStart)
+                    .reduce((sum, t) => sum + (t.total_price_usd || 0), 0);
+
+                const directSales = transactions
+                    .filter(t => t.report_date >= monthStart && t.channel === 'Direct')
+                    .reduce((sum, t) => sum + (t.total_price_usd || 0), 0);
+
+                const directShare = monthSales ? ((directSales / monthSales) * 100).toFixed(1) : 0;
+
+                // Commission calculation (10%)
+                const agents = {};
+                transactions
+                    .filter(t => t.report_date >= monthStart && t.agent_name)
+                    .forEach(t => {
+                        if (!agents[t.agent_name]) agents[t.agent_name] = 0;
+                        agents[t.agent_name] += (t.total_price_usd || 0) * 0.1;
+                    });
+
+                const commissionTotal = Object.values(agents).reduce((a, b) => a + b, 0);
+                const agentCount = Object.keys(agents).length;
+
+                // Update KPI Cards
+                document.getElementById('todaySales').innerHTML = `$${todaySales.toFixed(2)}`;
+                document.getElementById('monthSales').innerHTML = `$${monthSales.toFixed(2)}`;
+                document.getElementById('directSales').innerHTML = `$${directSales.toFixed(2)}`;
+                document.getElementById('directShare').innerHTML = `${directShare}% of total`;
+                document.getElementById('commissionTotal').innerHTML = `$${commissionTotal.toFixed(2)}`;
+                document.getElementById('commissionCount').innerHTML = `${agentCount} agents`;
+
+                // Show direct sales alert if zero
+                if (directSales === 0) {
+                    document.getElementById('directAlert').style.display = 'flex';
+                }
+
+                // Load Agents Table
+                loadAgentsTable(transactions);
+                
+                // Load OTAs Table
+                loadOTAsTable(transactions);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // ---------- Agents Table ----------
+        function loadAgentsTable(transactions) {
+            const agentSales = {};
+            const agentTransactions = {};
+
+            transactions
+                .filter(t => t.report_date >= monthStart && t.agent_name)
+                .forEach(t => {
+                    const agent = t.agent_name;
+                    if (!agentSales[agent]) agentSales[agent] = 0;
+                    if (!agentTransactions[agent]) agentTransactions[agent] = 0;
+                    
+                    agentSales[agent] += t.total_price_usd || 0;
+                    agentTransactions[agent] += 1;
+                });
+
+            const sortedAgents = Object.keys(agentSales)
+                .map(agent => ({
+                    name: agent,
+                    sales: agentSales[agent],
+                    transactions: agentTransactions[agent],
+                    commission: agentSales[agent] * 0.1
+                }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+
+            let html = '';
+            sortedAgents.forEach((agent, index) => {
+                let rankBadge = '';
+                if (index === 0) rankBadge = '<span class="badge">🥇 Top</span>';
+                else if (index === 1) rankBadge = '<span class="badge">🥈</span>';
+                else if (index === 2) rankBadge = '<span class="badge">🥉</span>';
+                else rankBadge = '<span class="badge" style="background: #f1f5f9; color: #475569;">' + (index + 1) + '</span>';
+
+                html += `<tr>
+                    <td><strong>${agent.name}</strong></td>
+                    <td>$${agent.sales.toFixed(2)}</td>
+                    <td>${agent.transactions}</td>
+                    <td>$${agent.commission.toFixed(2)}</td>
+                    <td>${rankBadge}</td>
+                </tr>`;
+            });
+
+            if (sortedAgents.length === 0) {
+                html = '<tr><td colspan="5" style="text-align: center;">No agent sales this month</td></tr>';
+            }
+
+            document.getElementById('agentsTableBody').innerHTML = html;
+        }
+
+        // ---------- OTAs Table ----------
+        function loadOTAsTable(transactions) {
+            const otaSales = {};
+            const otaCommission = {};
+
+            transactions
+                .filter(t => t.report_date >= monthStart && t.channel && t.channel.startsWith('OTA_'))
+                .forEach(t => {
+                    const ota = t.channel.replace('OTA_', '');
+                    if (!otaSales[ota]) otaSales[ota] = 0;
+                    if (!otaCommission[ota]) otaCommission[ota] = 0;
+                    
+                    otaSales[ota] += t.total_price_usd || 0;
+                    otaCommission[ota] += t.commission_usd || 0;
+                });
+
+            const totalOTASales = Object.values(otaSales).reduce((a, b) => a + b, 0);
+
+            const sortedOTAs = Object.keys(otaSales)
+                .map(ota => ({
+                    name: ota,
+                    sales: otaSales[ota],
+                    commission: otaCommission[ota],
+                    net: otaSales[ota] - otaCommission[ota],
+                    share: totalOTASales ? ((otaSales[ota] / totalOTASales) * 100).toFixed(1) : 0
+                }))
+                .sort((a, b) => b.sales - a.sales);
+
+            let html = '';
+            sortedOTAs.forEach(ota => {
+                html += `<tr>
+                    <td><strong>${ota.name}</strong></td>
+                    <td>$${ota.sales.toFixed(2)}</td>
+                    <td>$${ota.commission.toFixed(2)}</td>
+                    <td>$${ota.net.toFixed(2)}</td>
+                    <td>${ota.share}%</td>
+                </tr>`;
+            });
+
+            if (sortedOTAs.length === 0) {
+                html = '<tr><td colspan="5" style="text-align: center;">No OTA sales this month</td></tr>';
+            }
+
+            document.getElementById('otasTableBody').innerHTML = html;
+        }
+
+        // Load dashboard on page load
+        loadDashboard();
+
+        // Refresh every 5 minutes
+        setInterval(loadDashboard, 300000);
+    </script>
+</body>
+</html>
