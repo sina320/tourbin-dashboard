@@ -7,8 +7,10 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Font Awesome Icons (مینیمال) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== RESET ===== */
+        /* ===== RESET & VARIABLES ===== */
         * {
             margin: 0;
             padding: 0;
@@ -17,12 +19,12 @@
         }
 
         body {
-            background: #f7f9fc;
+            background: #f5f7fa;
             padding: 24px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -31,23 +33,153 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
         .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0a2c3d;
+            letter-spacing: -0.5px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .datetime {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #4f6573;
+            font-size: 14px;
+            background: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1px solid #edf2f5;
+        }
+
+        .datetime i {
+            color: #0a7c71;
+            margin-right: 6px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 6px 18px 6px 12px;
+            border-radius: 40px;
+            border: 1px solid #edf2f5;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .user-badge:hover {
+            background: #f0f6fa;
+            border-color: #cbd9e0;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #0a7c71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a2c3d;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #6f828c;
+        }
+
+        /* ===== LOGIN MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 28px;
+            width: 360px;
+            max-width: 90%;
+        }
+
+        .modal-title {
             font-size: 20px;
             font-weight: 600;
             color: #0a2c3d;
-            letter-spacing: -0.3px;
+            margin-bottom: 8px;
         }
 
-        .user {
+        .modal-sub {
+            color: #6f828c;
             font-size: 14px;
-            color: #4f6573;
+            margin-bottom: 28px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
             background: white;
-            padding: 8px 16px;
+            border: 1px solid #d0d9e0;
             border-radius: 40px;
-            border: 1px solid #edf2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a2e36;
+            cursor: pointer;
+            transition: all 0.1s;
+            margin-bottom: 12px;
+        }
+
+        .login-btn:hover {
+            background: #f8fafc;
+            border-color: #0a7c71;
+        }
+
+        .login-btn i {
+            font-size: 18px;
+            color: #0a7c71;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: #fff4f2;
+            border: none;
+            border-radius: 40px;
+            color: #b33a2a;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
         }
 
         /* ===== KPI GRID ===== */
@@ -66,10 +198,19 @@
         }
 
         .kpi-label {
-            font-size: 13px;
-            color: #5e6f7d;
-            margin-bottom: 8px;
-            font-weight: 500;
+            font-size: 12px;
+            color: #6a7e8c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kpi-label i {
+            color: #0a7c71;
+            font-size: 14px;
         }
 
         .kpi-value {
@@ -77,7 +218,7 @@
             font-weight: 600;
             color: #0a2c3d;
             line-height: 1;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .kpi-meta {
@@ -90,7 +231,7 @@
             background: #edf2f5;
             height: 6px;
             border-radius: 10px;
-            margin-top: 12px;
+            margin-top: 16px;
             width: 100%;
         }
 
@@ -99,6 +240,7 @@
             height: 6px;
             border-radius: 10px;
             width: 0%;
+            transition: width 0.3s;
         }
 
         /* ===== ALERT ===== */
@@ -110,11 +252,12 @@
             margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
-        .alert-icon {
+        .alert i {
             font-size: 20px;
+            color: #d44333;
         }
 
         .alert-title {
@@ -150,7 +293,12 @@
             color: #0a2c3d;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #0a7c71;
+            font-size: 16px;
         }
 
         /* ===== TABLES ===== */
@@ -160,7 +308,7 @@
         }
 
         .table td {
-            padding: 12px 0;
+            padding: 14px 0;
             border-bottom: 1px solid #f0f5f7;
             font-size: 15px;
         }
@@ -172,6 +320,7 @@
         .rank {
             color: #0a7c71;
             font-weight: 500;
+            margin-right: 12px;
         }
 
         .text-right {
@@ -180,54 +329,127 @@
 
         .text-muted {
             color: #6f828c;
-            font-size: 14px;
+            font-size: 13px;
+        }
+
+        .badge {
+            background: #f0f6fa;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #2c5f73;
         }
 
         /* ===== LAUNCHPAD ===== */
-        .launchpad {
-            display: flex;
+        .launchpad-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 12px;
             margin-top: 8px;
         }
 
         .launch-item {
-            background: #f8fafc;
-            padding: 10px 18px;
-            border-radius: 40px;
-            font-size: 14px;
+            background: #f8fbfc;
+            padding: 16px 8px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 13px;
             color: #1e3b4a;
-            text-decoration: none;
-            border: 1px solid #edf2f5;
             cursor: pointer;
+            transition: all 0.15s;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .launch-item i {
+            font-size: 20px;
+            color: #0a7c71;
         }
 
         .launch-item:hover {
-            background: #edf2f5;
+            background: white;
+            border-color: #d0d9e0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .launch-item span {
+            display: block;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 12px;
+            color: #8fa2ae;
+            border-top: 1px solid #edf2f5;
+            padding-top: 24px;
         }
 
         /* ===== UTILS ===== */
-        .mt-2 { margin-top: 16px; }
-        .mb-1 { margin-bottom: 8px; }
+        .hidden { display: none; }
         .bold { font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- ===== HEADER ===== -->
+        <!-- ===== HEADER با تقویم، ساعت و لاگین ===== -->
         <div class="header">
             <div class="logo">TORBIN</div>
-            <div class="user" id="userInfo">👤 مدیر فروش</div>
+            <div class="user-section">
+                <div class="datetime">
+                    <span><i class="far fa-calendar-alt"></i> <span id="dateDisplay"></span></span>
+                    <span><i class="far fa-clock"></i> <span id="timeDisplay"></span></span>
+                </div>
+                <div class="user-badge" id="userBadge" onclick="showLoginModal()">
+                    <div class="user-avatar" id="userAvatar">M</div>
+                    <div>
+                        <div class="user-name" id="userName">ورود</div>
+                        <div class="user-role" id="userRole">مدیر فروش</div>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size: 12px; color: #8a9ca8; margin-left: 4px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODAL لاگین ===== -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-title">ورود به TORBIN</div>
+                <div class="modal-sub">اتاق فرمان فروش</div>
+                
+                <button class="login-btn" onclick="loginAs('مدیر فروش', 'M')">
+                    <i class="fas fa-user-tie"></i> مدیر فروش
+                </button>
+                <button class="login-btn" onclick="loginAs('مدیرعامل', 'C')">
+                    <i class="fas fa-crown"></i> مدیرعامل
+                </button>
+                <button class="login-btn" onclick="loginAs('حسابدار', 'A')">
+                    <i class="fas fa-calculator"></i> حسابدار
+                </button>
+                
+                <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> خروج از حساب
+                </button>
+            </div>
         </div>
 
         <!-- ===== KPI: TODAY & TARGET ===== -->
         <div class="grid-2">
             <div class="kpi-card">
-                <div class="kpi-label">💰 امروز</div>
+                <div class="kpi-label">
+                    <i class="fas fa-wallet"></i> امروز
+                </div>
                 <div class="kpi-value" id="todaySales">—</div>
-                <div class="kpi-meta" id="todayMeta">تا ساعت ۹ صبح</div>
+                <div class="kpi-meta" id="todayMeta"></div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">🎯 تحقق هدف ماه</div>
+                <div class="kpi-label">
+                    <i class="fas fa-bullseye"></i> تحقق هدف
+                </div>
                 <div class="kpi-value" id="targetPercent">—</div>
                 <div class="kpi-meta" id="targetMeta">از ۱۰۰,۰۰۰ دلار</div>
                 <div class="progress">
@@ -238,7 +460,7 @@
 
         <!-- ===== ALERT: DIRECT SALES ZERO ===== -->
         <div id="directSalesAlert" style="display: none;" class="alert">
-            <span class="alert-icon">🔴</span>
+            <i class="fas fa-exclamation-triangle"></i>
             <div>
                 <div class="alert-title">فروش دایرکت صفر است</div>
                 <div class="alert-desc">۷ روز گذشته هیچ فروشی از سایت نداشته‌ایم. لینک پرداخت را بررسی کنید.</div>
@@ -248,12 +470,16 @@
         <!-- ===== KPI: COMMISSION & AGENTS COUNT ===== -->
         <div class="grid-2">
             <div class="kpi-card">
-                <div class="kpi-label">💸 پورسانت این ماه</div>
+                <div class="kpi-label">
+                    <i class="fas fa-hand-holding-usd"></i> پورسانت
+                </div>
                 <div class="kpi-value" id="commissionTotal">—</div>
-                <div class="kpi-meta" id="commissionMeta">قابل پرداخت به Agentها</div>
+                <div class="kpi-meta" id="commissionMeta"></div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">👥 Agentهای فعال</div>
+                <div class="kpi-label">
+                    <i class="fas fa-users"></i> Agentهای فعال
+                </div>
                 <div class="kpi-value" id="agentCount">—</div>
                 <div class="kpi-meta">فروش موفق در این ماه</div>
             </div>
@@ -263,9 +489,9 @@
         <div class="section">
             <div class="section-header">
                 <div class="section-title">
-                    <span>🥇</span> Agentهای برتر ماه
+                    <i class="fas fa-trophy"></i> Agentهای برتر ماه
                 </div>
-                <span class="text-muted">۱۰٪ پورسانت</span>
+                <span class="badge">۱۰٪ پورسانت</span>
             </div>
             <table class="table" id="agentsTable">
                 <tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">در حال بارگذاری...</td></tr>
@@ -276,7 +502,7 @@
         <div class="section">
             <div class="section-header">
                 <div class="section-title">
-                    <span>🌍</span> OTAها (خالص پس از کمیسیون)
+                    <i class="fas fa-globe"></i> OTAها (خالص پس از کمیسیون)
                 </div>
             </div>
             <table class="table" id="otasTable">
@@ -288,20 +514,61 @@
         <div class="section">
             <div class="section-header">
                 <div class="section-title">
-                    <span>🔗</span> دسترسی سریع
+                    <i class="fas fa-th"></i> دسترسی سریع
                 </div>
+                <span class="text-muted">۱۱ ماژول</span>
             </div>
-            <div class="launchpad">
-                <div class="launch-item" onclick="window.open('https://tourbin-upload.vercel.app', '_blank')">📤 آپلود دیتا</div>
-                <div class="launch-item" onclick="alert('💰 ماژول حقوق و دستمزد - به زودی')">💰 حقوق</div>
-                <div class="launch-item" onclick="alert('🔄 بازیابی دیتا - به زودی')">🔄 بازیابی</div>
-                <div class="launch-item" onclick="alert('📊 گزارشات - به زودی')">📊 گزارشات</div>
+            <div class="launchpad-grid">
+                <div class="launch-item" onclick="window.open('https://tourbin-upload.vercel.app', '_blank')">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Upload</span>
+                </div>
+                <div class="launch-item" onclick="alert('💰 Payroll - به زودی')">
+                    <i class="fas fa-coins"></i>
+                    <span>Payroll</span>
+                </div>
+                <div class="launch-item" onclick="alert('🔄 Recovery - به زودی')">
+                    <i class="fas fa-history"></i>
+                    <span>Recovery</span>
+                </div>
+                <div class="launch-item" onclick="alert('📊 Analytics - به زودی')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="launch-item" onclick="alert('👥 Customers - به زودی')">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Customers</span>
+                </div>
+                <div class="launch-item" onclick="alert('🗺️ Tours - به زودی')">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Tours</span>
+                </div>
+                <div class="launch-item" onclick="alert('📈 Forecast - به زودی')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Forecast</span>
+                </div>
+                <div class="launch-item" onclick="alert('🌐 Social - به زودی')">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Social</span>
+                </div>
+                <div class="launch-item" onclick="alert('⚙️ Settings - به زودی')">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="launch-item" onclick="alert('📄 Reports - به زودی')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </div>
+                <div class="launch-item" onclick="alert('🔐 Access - به زودی')">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Access</span>
+                </div>
             </div>
         </div>
 
         <!-- ===== FOOTER ===== -->
-        <div style="margin-top: 32px; text-align: center; font-size: 12px; color: #8fa2ae;">
-            آخرین به‌روزرسانی: <span id="updateTime">—</span>
+        <div class="footer">
+            <i class="fas fa-database"></i> TORBIN · به‌روزرسانی: <span id="updateTime">—</span>
         </div>
     </div>
 
@@ -319,10 +586,67 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(app);
         
-        const MONTH_TARGET = 100000; // هدف ماهانه: ۱۰۰,۰۰۰ دلار
+        const MONTH_TARGET = 100000;
+
+        // ===== AUTH STATE =====
+        let currentUser = null;
+
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function hideLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function loginAs(role, avatar) {
+            currentUser = { name: role, avatar: avatar };
+            document.getElementById('userName').innerHTML = role;
+            document.getElementById('userAvatar').innerHTML = avatar;
+            document.getElementById('logoutBtn').style.display = 'block';
+            hideLoginModal();
+            loadDashboard();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('userName').innerHTML = 'ورود';
+            document.getElementById('userAvatar').innerHTML = 'M';
+            document.getElementById('logoutBtn').style.display = 'none';
+            
+            // Reset all data
+            document.getElementById('todaySales').innerHTML = '—';
+            document.getElementById('targetPercent').innerHTML = '—';
+            document.getElementById('commissionTotal').innerHTML = '—';
+            document.getElementById('agentCount').innerHTML = '—';
+            document.getElementById('agentsTable').innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">لطفاً وارد شوید</td></tr>';
+            document.getElementById('otasTable').innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">لطفاً وارد شوید</td></tr>';
+        }
+
+        // ===== DATE & TIME =====
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Date
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('dateDisplay').innerHTML = `${year}-${month}-${day}`;
+            
+            // Time
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('timeDisplay').innerHTML = `${hours}:${minutes}:${seconds}`;
+        }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
 
         // ===== LOAD DATA =====
         async function loadDashboard() {
+            if (!currentUser) return;
+            
             try {
                 const today = new Date();
                 const todayStr = today.toISOString().split('T')[0];
@@ -371,7 +695,7 @@
                     }
                 });
 
-                // Target percent
+                // Target
                 const targetPercent = Math.min(100, ((monthSales / MONTH_TARGET) * 100)).toFixed(0);
                 document.getElementById('targetPercent').innerHTML = `${targetPercent}%`;
                 document.getElementById('targetMeta').innerHTML = `از $${MONTH_TARGET.toLocaleString()}`;
@@ -443,7 +767,7 @@
 
             let html = '';
             sorted.forEach((ota, i) => {
-                const net = ota.sales * 0.75; // میانگین ۲۵٪ کمیسیون
+                const net = ota.sales * 0.75;
                 html += `<tr>
                     <td>${i+1}. ${ota.name}</td>
                     <td class="text-right bold">$${net.toLocaleString()}</td>
@@ -454,8 +778,21 @@
 
         // ===== INIT =====
         window.onload = () => {
-            loadDashboard();
-            setInterval(loadDashboard, 300000); // هر ۵ دقیقه
+            // Show login modal on first load
+            setTimeout(() => showLoginModal(), 500);
+            
+            // Load data every 5 minutes if logged in
+            setInterval(() => {
+                if (currentUser) loadDashboard();
+            }, 300000);
+        };
+
+        // ===== CLOSE MODAL ON CLICK OUTSIDE =====
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                hideLoginModal();
+            }
         };
     </script>
 </body>
