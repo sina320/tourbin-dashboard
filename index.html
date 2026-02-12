@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TORBIN · مدیر فروش</title>
+    <title>TORBIN · Sales Commander</title>
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <!-- Font Awesome Icons (مینیمال) -->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== RESET & VARIABLES ===== */
+        /* ===== RESET ===== */
         * {
             margin: 0;
             padding: 0;
@@ -19,12 +21,12 @@
         }
 
         body {
-            background: #f5f7fa;
-            padding: 24px;
+            background: #f8fafc;
+            padding: 28px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -33,32 +35,32 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
         }
 
         .logo {
             font-size: 22px;
             font-weight: 600;
             color: #0a2c3d;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
         }
 
         .user-section {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
         }
 
         .datetime {
             display: flex;
             align-items: center;
-            gap: 16px;
-            color: #4f6573;
+            gap: 20px;
+            color: #4b6674;
             font-size: 14px;
             background: white;
-            padding: 8px 18px;
+            padding: 8px 20px;
             border-radius: 40px;
-            border: 1px solid #edf2f5;
+            border: 1px solid #e6edf0;
         }
 
         .datetime i {
@@ -69,42 +71,31 @@
         .user-badge {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             background: white;
-            padding: 6px 18px 6px 12px;
+            padding: 6px 20px 6px 12px;
             border-radius: 40px;
-            border: 1px solid #edf2f5;
+            border: 1px solid #e6edf0;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: all 0.15s;
         }
 
         .user-badge:hover {
-            background: #f0f6fa;
-            border-color: #cbd9e0;
+            background: #f4f9fb;
+            border-color: #b8d1da;
         }
 
         .user-avatar {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             background: #0a7c71;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 14px;
             font-weight: 500;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #0a2c3d;
-        }
-
-        .user-role {
-            font-size: 12px;
-            color: #6f828c;
+            font-size: 15px;
         }
 
         /* ===== LOGIN MODAL ===== */
@@ -123,45 +114,46 @@
 
         .modal-content {
             background: white;
-            padding: 32px;
-            border-radius: 28px;
-            width: 360px;
+            padding: 36px;
+            border-radius: 32px;
+            width: 380px;
             max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         }
 
         .modal-title {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 600;
             color: #0a2c3d;
             margin-bottom: 8px;
         }
 
         .modal-sub {
-            color: #6f828c;
+            color: #6a7e8c;
             font-size: 14px;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
         }
 
         .login-btn {
             width: 100%;
             padding: 14px;
             background: white;
-            border: 1px solid #d0d9e0;
-            border-radius: 40px;
+            border: 1px solid #e0e8ec;
+            border-radius: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
             font-size: 15px;
             font-weight: 500;
-            color: #1a2e36;
+            color: #1f3e4c;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: all 0.15s;
             margin-bottom: 12px;
         }
 
         .login-btn:hover {
-            background: #f8fafc;
+            background: #f4fafc;
             border-color: #0a7c71;
         }
 
@@ -173,28 +165,33 @@
         .logout-btn {
             width: 100%;
             padding: 12px;
-            background: #fff4f2;
+            background: #fff3f1;
             border: none;
-            border-radius: 40px;
+            border-radius: 60px;
             color: #b33a2a;
             font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         /* ===== KPI GRID ===== */
-        .grid-2 {
+        .kpi-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .kpi-card {
             background: white;
             padding: 24px;
             border-radius: 20px;
-            border: 1px solid #f0f3f5;
+            border: 1px solid #f0f5f7;
         }
 
         .kpi-label {
@@ -214,7 +211,7 @@
         }
 
         .kpi-value {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 600;
             color: #0a2c3d;
             line-height: 1;
@@ -226,9 +223,9 @@
             color: #6f828c;
         }
 
-        /* ===== PROGRESS BAR ===== */
+        /* ===== PROGRESS ===== */
         .progress {
-            background: #edf2f5;
+            background: #e9f0f3;
             height: 6px;
             border-radius: 10px;
             margin-top: 16px;
@@ -245,18 +242,18 @@
 
         /* ===== ALERT ===== */
         .alert {
-            background: #fff4f2;
+            background: #fff3f1;
             border-left: 5px solid #d44333;
-            padding: 18px 20px;
+            padding: 18px 24px;
             border-radius: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
 
         .alert i {
-            font-size: 20px;
+            font-size: 22px;
             color: #d44333;
         }
 
@@ -271,13 +268,54 @@
             color: #5e3a35;
         }
 
-        /* ===== SECTION ===== */
+        /* ===== CHARTS ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid #f0f5f7;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0a2c3d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title i {
+            color: #0a7c71;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+
+        /* ===== SECTIONS ===== */
         .section {
             background: white;
             border-radius: 20px;
             padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #f0f3f5;
+            margin-bottom: 28px;
+            border: 1px solid #f0f5f7;
         }
 
         .section-header {
@@ -298,7 +336,6 @@
 
         .section-title i {
             color: #0a7c71;
-            font-size: 16px;
         }
 
         /* ===== TABLES ===== */
@@ -309,7 +346,7 @@
 
         .table td {
             padding: 14px 0;
-            border-bottom: 1px solid #f0f5f7;
+            border-bottom: 1px solid #f0f7fa;
             font-size: 15px;
         }
 
@@ -327,17 +364,12 @@
             text-align: right;
         }
 
-        .text-muted {
-            color: #6f828c;
-            font-size: 13px;
-        }
-
         .badge {
-            background: #f0f6fa;
-            padding: 4px 12px;
+            background: #f0f7fa;
+            padding: 4px 14px;
             border-radius: 30px;
             font-size: 12px;
-            color: #2c5f73;
+            color: #2a5f6e;
         }
 
         /* ===== LAUNCHPAD ===== */
@@ -349,9 +381,9 @@
         }
 
         .launch-item {
-            background: #f8fbfc;
-            padding: 16px 8px;
-            border-radius: 16px;
+            background: #f9fdfe;
+            padding: 18px 8px;
+            border-radius: 18px;
             text-align: center;
             font-size: 13px;
             color: #1e3b4a;
@@ -361,42 +393,37 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .launch-item i {
-            font-size: 20px;
+            font-size: 22px;
             color: #0a7c71;
         }
 
         .launch-item:hover {
             background: white;
-            border-color: #d0d9e0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-        }
-
-        .launch-item span {
-            display: block;
+            border-color: #d0dce2;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.02);
         }
 
         /* ===== FOOTER ===== */
         .footer {
-            margin-top: 32px;
+            margin-top: 40px;
             text-align: center;
             font-size: 12px;
             color: #8fa2ae;
-            border-top: 1px solid #edf2f5;
-            padding-top: 24px;
+            border-top: 1px solid #e6edf0;
+            padding-top: 28px;
         }
 
-        /* ===== UTILS ===== */
         .hidden { display: none; }
         .bold { font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- ===== HEADER با تقویم، ساعت و لاگین ===== -->
+        <!-- ===== HEADER with Calendar, Clock, Login ===== -->
         <div class="header">
             <div class="logo">TORBIN</div>
             <div class="user-section">
@@ -405,83 +432,102 @@
                     <span><i class="far fa-clock"></i> <span id="timeDisplay"></span></span>
                 </div>
                 <div class="user-badge" id="userBadge" onclick="showLoginModal()">
-                    <div class="user-avatar" id="userAvatar">M</div>
-                    <div>
-                        <div class="user-name" id="userName">ورود</div>
-                        <div class="user-role" id="userRole">مدیر فروش</div>
-                    </div>
+                    <div class="user-avatar" id="userAvatar">SM</div>
+                    <div style="font-size: 14px; font-weight: 500; color: #0a2c3d;" id="userName">Sign in</div>
                     <i class="fas fa-chevron-down" style="font-size: 12px; color: #8a9ca8; margin-left: 4px;"></i>
                 </div>
             </div>
         </div>
 
-        <!-- ===== MODAL لاگین ===== -->
+        <!-- ===== LOGIN MODAL ===== -->
         <div id="loginModal" class="modal">
             <div class="modal-content">
-                <div class="modal-title">ورود به TORBIN</div>
-                <div class="modal-sub">اتاق فرمان فروش</div>
+                <div class="modal-title">Welcome back</div>
+                <div class="modal-sub">Sign in to TORBIN Command Center</div>
                 
-                <button class="login-btn" onclick="loginAs('مدیر فروش', 'M')">
-                    <i class="fas fa-user-tie"></i> مدیر فروش
+                <button class="login-btn" onclick="loginAs('Sales Manager', 'SM')">
+                    <i class="fas fa-user-tie"></i> Sales Manager
                 </button>
-                <button class="login-btn" onclick="loginAs('مدیرعامل', 'C')">
-                    <i class="fas fa-crown"></i> مدیرعامل
+                <button class="login-btn" onclick="loginAs('CEO', 'CE')">
+                    <i class="fas fa-crown"></i> CEO
                 </button>
-                <button class="login-btn" onclick="loginAs('حسابدار', 'A')">
-                    <i class="fas fa-calculator"></i> حسابدار
+                <button class="login-btn" onclick="loginAs('Finance', 'FN')">
+                    <i class="fas fa-calculator"></i> Finance
                 </button>
                 
                 <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display: none;">
-                    <i class="fas fa-sign-out-alt"></i> خروج از حساب
+                    <i class="fas fa-sign-out-alt"></i> Sign out
                 </button>
             </div>
         </div>
 
-        <!-- ===== KPI: TODAY & TARGET ===== -->
-        <div class="grid-2">
+        <!-- ===== KPI GRID ===== -->
+        <div class="kpi-grid">
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fas fa-wallet"></i> امروز
+                    <i class="fas fa-wallet"></i> Today
                 </div>
                 <div class="kpi-value" id="todaySales">—</div>
                 <div class="kpi-meta" id="todayMeta"></div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fas fa-bullseye"></i> تحقق هدف
+                    <i class="fas fa-bullseye"></i> Target
                 </div>
                 <div class="kpi-value" id="targetPercent">—</div>
-                <div class="kpi-meta" id="targetMeta">از ۱۰۰,۰۰۰ دلار</div>
+                <div class="kpi-meta">of $100k monthly</div>
                 <div class="progress">
                     <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- ===== ALERT: DIRECT SALES ZERO ===== -->
-        <div id="directSalesAlert" style="display: none;" class="alert">
-            <i class="fas fa-exclamation-triangle"></i>
-            <div>
-                <div class="alert-title">فروش دایرکت صفر است</div>
-                <div class="alert-desc">۷ روز گذشته هیچ فروشی از سایت نداشته‌ایم. لینک پرداخت را بررسی کنید.</div>
-            </div>
-        </div>
-
-        <!-- ===== KPI: COMMISSION & AGENTS COUNT ===== -->
-        <div class="grid-2">
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fas fa-hand-holding-usd"></i> پورسانت
+                    <i class="fas fa-hand-holding-usd"></i> Commission
                 </div>
                 <div class="kpi-value" id="commissionTotal">—</div>
                 <div class="kpi-meta" id="commissionMeta"></div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fas fa-users"></i> Agentهای فعال
+                    <i class="fas fa-users"></i> Active agents
                 </div>
                 <div class="kpi-value" id="agentCount">—</div>
-                <div class="kpi-meta">فروش موفق در این ماه</div>
+                <div class="kpi-meta">this month</div>
+            </div>
+        </div>
+
+        <!-- ===== DIRECT SALES ALERT ===== -->
+        <div id="directSalesAlert" style="display: none;" class="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <div class="alert-title">Direct sales: $0</div>
+                <div class="alert-desc">No direct sales in the last 7 days. Check payment link.</div>
+            </div>
+        </div>
+
+        <!-- ===== CHARTS ===== -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-line"></i> Sales trend
+                    </div>
+                    <span class="badge">last 7 days</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie"></i> Channel mix
+                    </div>
+                    <span class="badge">this month</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="channelChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -489,12 +535,12 @@
         <div class="section">
             <div class="section-header">
                 <div class="section-title">
-                    <i class="fas fa-trophy"></i> Agentهای برتر ماه
+                    <i class="fas fa-trophy"></i> Top agents
                 </div>
-                <span class="badge">۱۰٪ پورسانت</span>
+                <span class="badge">10% commission</span>
             </div>
             <table class="table" id="agentsTable">
-                <tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">در حال بارگذاری...</td></tr>
+                <tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">Sign in to view data</td></tr>
             </table>
         </div>
 
@@ -502,11 +548,12 @@
         <div class="section">
             <div class="section-header">
                 <div class="section-title">
-                    <i class="fas fa-globe"></i> OTAها (خالص پس از کمیسیون)
+                    <i class="fas fa-globe"></i> Top OTAs
                 </div>
+                <span class="badge">net after commission</span>
             </div>
             <table class="table" id="otasTable">
-                <tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">در حال بارگذاری...</td></tr>
+                <tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">Sign in to view data</td></tr>
             </table>
         </div>
 
@@ -514,52 +561,52 @@
         <div class="section">
             <div class="section-header">
                 <div class="section-title">
-                    <i class="fas fa-th"></i> دسترسی سریع
+                    <i class="fas fa-th"></i> Quick access
                 </div>
-                <span class="text-muted">۱۱ ماژول</span>
+                <span class="badge">11 modules</span>
             </div>
             <div class="launchpad-grid">
                 <div class="launch-item" onclick="window.open('https://tourbin-upload.vercel.app', '_blank')">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <span>Upload</span>
                 </div>
-                <div class="launch-item" onclick="alert('💰 Payroll - به زودی')">
+                <div class="launch-item" onclick="alert('💰 Payroll module - coming soon')">
                     <i class="fas fa-coins"></i>
                     <span>Payroll</span>
                 </div>
-                <div class="launch-item" onclick="alert('🔄 Recovery - به زودی')">
+                <div class="launch-item" onclick="alert('🔄 Recovery - coming soon')">
                     <i class="fas fa-history"></i>
                     <span>Recovery</span>
                 </div>
-                <div class="launch-item" onclick="alert('📊 Analytics - به زودی')">
+                <div class="launch-item" onclick="alert('📊 Analytics - coming soon')">
                     <i class="fas fa-chart-line"></i>
                     <span>Analytics</span>
                 </div>
-                <div class="launch-item" onclick="alert('👥 Customers - به زودی')">
+                <div class="launch-item" onclick="alert('👥 Customers - coming soon')">
                     <i class="fas fa-user-friends"></i>
                     <span>Customers</span>
                 </div>
-                <div class="launch-item" onclick="alert('🗺️ Tours - به زودی')">
+                <div class="launch-item" onclick="alert('🗺️ Tours - coming soon')">
                     <i class="fas fa-map-marked-alt"></i>
                     <span>Tours</span>
                 </div>
-                <div class="launch-item" onclick="alert('📈 Forecast - به زودی')">
+                <div class="launch-item" onclick="alert('📈 Forecast - coming soon')">
                     <i class="fas fa-chart-bar"></i>
                     <span>Forecast</span>
                 </div>
-                <div class="launch-item" onclick="alert('🌐 Social - به زودی')">
+                <div class="launch-item" onclick="alert('🌐 Social - coming soon')">
                     <i class="fas fa-share-alt"></i>
                     <span>Social</span>
                 </div>
-                <div class="launch-item" onclick="alert('⚙️ Settings - به زودی')">
+                <div class="launch-item" onclick="alert('⚙️ Settings - coming soon')">
                     <i class="fas fa-sliders-h"></i>
                     <span>Settings</span>
                 </div>
-                <div class="launch-item" onclick="alert('📄 Reports - به زودی')">
+                <div class="launch-item" onclick="alert('📄 Reports - coming soon')">
                     <i class="fas fa-file-alt"></i>
                     <span>Reports</span>
                 </div>
-                <div class="launch-item" onclick="alert('🔐 Access - به زودی')">
+                <div class="launch-item" onclick="alert('🔐 Access - coming soon')">
                     <i class="fas fa-shield-alt"></i>
                     <span>Access</span>
                 </div>
@@ -568,7 +615,7 @@
 
         <!-- ===== FOOTER ===== -->
         <div class="footer">
-            <i class="fas fa-database"></i> TORBIN · به‌روزرسانی: <span id="updateTime">—</span>
+            <i class="fas fa-database"></i> TORBIN · Live from Firestore · Updated <span id="updateTime">—</span>
         </div>
     </div>
 
@@ -587,10 +634,10 @@
         const db = firebase.firestore(app);
         
         const MONTH_TARGET = 100000;
-
-        // ===== AUTH STATE =====
         let currentUser = null;
+        let salesChart, channelChart;
 
+        // ===== AUTH =====
         function showLoginModal() {
             document.getElementById('loginModal').style.display = 'flex';
         }
@@ -610,30 +657,30 @@
 
         function logout() {
             currentUser = null;
-            document.getElementById('userName').innerHTML = 'ورود';
-            document.getElementById('userAvatar').innerHTML = 'M';
+            document.getElementById('userName').innerHTML = 'Sign in';
+            document.getElementById('userAvatar').innerHTML = 'SM';
             document.getElementById('logoutBtn').style.display = 'none';
             
-            // Reset all data
+            // Reset UI
             document.getElementById('todaySales').innerHTML = '—';
             document.getElementById('targetPercent').innerHTML = '—';
             document.getElementById('commissionTotal').innerHTML = '—';
             document.getElementById('agentCount').innerHTML = '—';
-            document.getElementById('agentsTable').innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">لطفاً وارد شوید</td></tr>';
-            document.getElementById('otasTable').innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">لطفاً وارد شوید</td></tr>';
+            document.getElementById('agentsTable').innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">Sign in to view data</td></tr>';
+            document.getElementById('otasTable').innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">Sign in to view data</td></tr>';
+            
+            // Reset charts
+            resetCharts();
         }
 
         // ===== DATE & TIME =====
         function updateDateTime() {
             const now = new Date();
-            
-            // Date
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             document.getElementById('dateDisplay').innerHTML = `${year}-${month}-${day}`;
             
-            // Time
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -643,6 +690,70 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
+        // ===== INIT CHARTS =====
+        function initCharts() {
+            const ctx1 = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sales (USD)',
+                        data: [],
+                        borderColor: '#0a7c71',
+                        backgroundColor: 'rgba(10,124,113,0.04)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#0a7c71',
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f0f7fa' } } }
+                }
+            });
+
+            const ctx2 = document.getElementById('channelChart').getContext('2d');
+            channelChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['OTA', 'Agents', 'Direct'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#ed8936', '#4299e1', '#0a7c71'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { usePointStyle: true, boxWidth: 8, color: '#4f6573' }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function resetCharts() {
+            if (salesChart) {
+                salesChart.data.labels = [];
+                salesChart.data.datasets[0].data = [];
+                salesChart.update();
+            }
+            if (channelChart) {
+                channelChart.data.datasets[0].data = [0, 0, 0];
+                channelChart.update();
+            }
+        }
+
         // ===== LOAD DATA =====
         async function loadDashboard() {
             if (!currentUser) return;
@@ -651,6 +762,9 @@
                 const today = new Date();
                 const todayStr = today.toISOString().split('T')[0];
                 const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                const weekAgo = new Date(today);
+                weekAgo.setDate(today.getDate() - 7);
+                const weekAgoStr = weekAgo.toISOString().split('T')[0];
 
                 const snapshot = await db.collection('sales_transactions')
                     .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
@@ -659,7 +773,7 @@
                 const transactions = [];
                 snapshot.forEach(doc => transactions.push(doc.data()));
 
-                // ===== TODAY'S SALES =====
+                // ===== TODAY =====
                 let todaySales = 0;
                 transactions.forEach(t => {
                     if (t.report_date === todayStr) {
@@ -667,9 +781,9 @@
                     }
                 });
                 document.getElementById('todaySales').innerHTML = `$${todaySales.toLocaleString()}`;
-                document.getElementById('todayMeta').innerHTML = `تا ساعت ${today.getHours()}:${String(today.getMinutes()).padStart(2,'0')}`;
+                document.getElementById('todayMeta').innerHTML = `as of ${today.getHours()}:${String(today.getMinutes()).padStart(2,'0')}`;
 
-                // ===== MONTH SALES & TARGET =====
+                // ===== MONTH =====
                 let monthSales = 0, directSales = 0, commissionTotal = 0;
                 let agentSales = {}, otaSales = {};
 
@@ -698,12 +812,11 @@
                 // Target
                 const targetPercent = Math.min(100, ((monthSales / MONTH_TARGET) * 100)).toFixed(0);
                 document.getElementById('targetPercent').innerHTML = `${targetPercent}%`;
-                document.getElementById('targetMeta').innerHTML = `از $${MONTH_TARGET.toLocaleString()}`;
                 document.getElementById('progressFill').style.width = `${targetPercent}%`;
 
                 // Commission & Agents
                 document.getElementById('commissionTotal').innerHTML = `$${commissionTotal.toLocaleString()}`;
-                document.getElementById('commissionMeta').innerHTML = `قابل پرداخت به ${Object.keys(agentSales).length} Agent`;
+                document.getElementById('commissionMeta').innerHTML = `${Object.keys(agentSales).length} agents`;
                 document.getElementById('agentCount').innerHTML = Object.keys(agentSales).length;
 
                 // ===== DIRECT SALES ALERT =====
@@ -713,11 +826,13 @@
                     document.getElementById('directSalesAlert').style.display = 'none';
                 }
 
-                // ===== TOP AGENTS =====
+                // ===== TABLES =====
                 updateAgentsTable(agentSales);
-                
-                // ===== TOP OTAs =====
                 updateOTAsTable(otaSales);
+                
+                // ===== CHARTS =====
+                updateSalesChart(transactions, weekAgoStr, todayStr);
+                updateChannelChart(transactions, monthStart);
 
                 // ===== UPDATE TIME =====
                 const now = new Date();
@@ -737,7 +852,7 @@
                 .slice(0, 5);
 
             if (sorted.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">هیچ فروشی از Agentها ثبت نشده</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">No agent sales this month</td></tr>';
                 return;
             }
 
@@ -761,13 +876,13 @@
                 .slice(0, 5);
 
             if (sorted.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">هیچ فروشی از OTAها ثبت نشده</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 32px; color: #8a9ca8;">No OTA sales this month</td></tr>';
                 return;
             }
 
             let html = '';
             sorted.forEach((ota, i) => {
-                const net = ota.sales * 0.75;
+                const net = ota.sales * 0.75; // Avg 25% commission
                 html += `<tr>
                     <td>${i+1}. ${ota.name}</td>
                     <td class="text-right bold">$${net.toLocaleString()}</td>
@@ -776,18 +891,61 @@
             tbody.innerHTML = html;
         }
 
+        // ===== SALES CHART =====
+        function updateSalesChart(transactions, startDate, endDate) {
+            const labels = [];
+            const data = [];
+            
+            const dateMap = new Map();
+            transactions.forEach(t => {
+                if (t.report_date && t.report_date >= startDate) {
+                    const price = t.total_price_usd || 0;
+                    dateMap.set(t.report_date, (dateMap.get(t.report_date) || 0) + price);
+                }
+            });
+
+            const today = new Date(endDate);
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                labels.push(dateStr.slice(5)); // MM-DD
+                data.push(dateMap.get(dateStr) || 0);
+            }
+
+            salesChart.data.labels = labels;
+            salesChart.data.datasets[0].data = data;
+            salesChart.update();
+        }
+
+        // ===== CHANNEL CHART =====
+        function updateChannelChart(transactions, monthStart) {
+            let ota = 0, agent = 0, direct = 0;
+            
+            transactions.forEach(t => {
+                if (t.report_date >= monthStart) {
+                    const price = t.total_price_usd || 0;
+                    const channel = t.channel || '';
+                    if (channel === 'Direct') direct += price;
+                    else if (channel === 'Agent') agent += price;
+                    else if (channel?.startsWith('OTA_')) ota += price;
+                }
+            });
+
+            channelChart.data.datasets[0].data = [ota, agent, direct];
+            channelChart.update();
+        }
+
         // ===== INIT =====
         window.onload = () => {
-            // Show login modal on first load
+            initCharts();
             setTimeout(() => showLoginModal(), 500);
-            
-            // Load data every 5 minutes if logged in
             setInterval(() => {
                 if (currentUser) loadDashboard();
             }, 300000);
         };
 
-        // ===== CLOSE MODAL ON CLICK OUTSIDE =====
+        // ===== CLOSE MODAL =====
         window.onclick = function(event) {
             const modal = document.getElementById('loginModal');
             if (event.target === modal) {
