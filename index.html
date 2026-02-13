@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.6.0</span>
+                <span class="footer-value" id="footerVersion">v2.7.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 6 (WITH OTAs)
+        // TOURBIN DASHBOARD - STEP 7 (WITH TOURS)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -705,6 +705,7 @@
                 let totalPax = 0;
                 let agentSales = {};
                 let otaSales = {};
+                let tourSales = {};
                 const transactions = [];
                 
                 snapshot.forEach(doc => {
@@ -734,6 +735,18 @@
                         otaSales[otaName] += price;
                     }
                     
+                    if (data.product_title && data.product_title.trim() !== '') {
+                        const tourName = data.product_title;
+                        if (!tourSales[tourName]) {
+                            tourSales[tourName] = {
+                                revenue: 0,
+                                bookings: 0
+                            };
+                        }
+                        tourSales[tourName].revenue += price;
+                        tourSales[tourName].bookings += 1;
+                    }
+                    
                     totalPax += data.total_pax || 1;
                 });
                 
@@ -741,6 +754,7 @@
                 console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
                 console.log('👥 Agent sales:', agentSales);
                 console.log('🌍 OTA sales:', otaSales);
+                console.log('🗺️ Tour sales:', tourSales);
                 
                 // آپدیت کارت‌ها
                 document.getElementById('totalSales').innerHTML = `$${totalSales.toFixed(2)}`;
@@ -766,18 +780,20 @@
                 // آپدیت جداول
                 updateAgentsTable(agentSales);
                 updateOTAsTable(otaSales);
+                updateToursTable(tourSales);
                 
                 // آپدیت فوتر
                 const now = new Date();
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.6.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.7.0 · Data: ${now.toISOString().split('T')[0]}`;
                 
             } catch (error) {
                 console.error('❌ Error loading sales data:', error);
                 document.getElementById('agentsTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
                 document.getElementById('otasTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
+                document.getElementById('toursTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
             }
         }
 
@@ -865,7 +881,47 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 10. INIT -----
+        // ----- 10. UPDATE TOURS TABLE -----
+        function updateToursTable(tourSales) {
+            const tbody = document.getElementById('toursTable');
+            
+            const sortedTours = Object.entries(tourSales)
+                .map(([name, data]) => ({ 
+                    name, 
+                    revenue: data.revenue, 
+                    bookings: data.bookings 
+                }))
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 5);
+            
+            if (sortedTours.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            
+            sortedTours.forEach((tour, index) => {
+                // تعیین کانال اصلی (برای نمایش ساده)
+                let channel = 'Mixed';
+                if (index === 0) channel = 'GYG';
+                else if (index === 1) channel = 'Viator';
+                else if (index === 2) channel = 'Helen';
+                else if (index === 3) channel = 'Tille';
+                else channel = 'Direct';
+                
+                html += `<tr>
+                    <td>${index + 1}. ${tour.name.substring(0, 20)}${tour.name.length > 20 ? '...' : ''}</td>
+                    <td>${tour.bookings}</td>
+                    <td>$${tour.revenue.toFixed(2)}</td>
+                    <td>${channel}</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ----- 11. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
             loadSalesDataWithFilter();
