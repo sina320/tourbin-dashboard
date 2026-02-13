@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.14.0</span>
+                <span class="footer-value" id="footerVersion">v2.15.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 14 (FINAL TABLES)
+        // TOURBIN DASHBOARD - STEP 15 (SALES CHART)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -600,26 +600,46 @@
         window.selectedStartDate = startDate;
         window.selectedEndDate = endDate;
 
-        // ----- 4. CHARTS -----
+        // ----- 4. CHARTS INIT -----
         const ctx1 = document.getElementById('salesChart').getContext('2d');
         window.salesChart = new Chart(ctx1, {
             type: 'line',
             data: {
                 labels: [],
-                datasets: [{
-                    label: 'Actual',
-                    data: [],
-                    borderColor: '#1D7A6B',
-                    borderWidth: 2,
-                    tension: 0.2,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#1D7A6B'
-                }]
+                datasets: [
+                    {
+                        label: 'Actual',
+                        data: [],
+                        borderColor: '#1D7A6B',
+                        backgroundColor: 'rgba(29,122,107,0.04)',
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#1D7A6B',
+                        fill: true
+                    },
+                    {
+                        label: '3-day avg',
+                        data: [],
+                        borderColor: '#64748B',
+                        borderWidth: 1.5,
+                        borderDash: [5, 5],
+                        tension: 0.2,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
             },
             options: { 
                 responsive: true, 
                 maintainAspectRatio: true, 
-                plugins: { legend: { display: false } },
+                plugins: { 
+                    legend: { 
+                        display: true,
+                        position: 'top',
+                        labels: { usePointStyle: true, boxWidth: 8 }
+                    } 
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -808,12 +828,15 @@
                 updateOTAsTable(otaSales);
                 updateToursTable(tourSales);
                 
+                // آپدیت نمودار فروش
+                updateSalesChart(transactions, startDate, endDate);
+                
                 // آپدیت فوتر
                 const now = new Date();
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.14.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.15.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -824,7 +847,58 @@
             }
         }
 
-        // ----- 8. UPDATE AGENTS TABLE -----
+        // ----- 8. UPDATE SALES CHART -----
+        function updateSalesChart(transactions, startDate, endDate) {
+            const salesByDate = {};
+            
+            transactions.forEach(t => {
+                const date = t.report_date;
+                const price = t.total_price_usd || 0;
+                
+                if (date) {
+                    if (!salesByDate[date]) {
+                        salesByDate[date] = 0;
+                    }
+                    salesByDate[date] += price;
+                }
+            });
+            
+            const labels = [];
+            const data = [];
+            
+            let currentDate = new Date(startDate);
+            const lastDate = new Date(endDate);
+            
+            while (currentDate <= lastDate) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const displayDate = dateStr.slice(5); // MM-DD
+                
+                labels.push(displayDate);
+                data.push(salesByDate[dateStr] || 0);
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // محاسبه میانگین متحرک ۳ روزه
+            const movingAvg = [];
+            for (let i = 0; i < data.length; i++) {
+                if (i < 2) {
+                    movingAvg.push(null);
+                } else {
+                    const avg = (data[i] + data[i-1] + data[i-2]) / 3;
+                    movingAvg.push(parseFloat(avg.toFixed(2)));
+                }
+            }
+            
+            if (window.salesChart) {
+                window.salesChart.data.labels = labels;
+                window.salesChart.data.datasets[0].data = data;
+                window.salesChart.data.datasets[1].data = movingAvg;
+                window.salesChart.update();
+            }
+        }
+
+        // ----- 9. UPDATE AGENTS TABLE -----
         function updateAgentsTable(agentSales) {
             const tbody = document.getElementById('agentsTable');
             
@@ -874,7 +948,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 9. UPDATE OTAs TABLE (با داده‌های واقعی) -----
+        // ----- 10. UPDATE OTAs TABLE -----
         function updateOTAsTable(otaSales) {
             const tbody = document.getElementById('otasTable');
             
@@ -893,7 +967,7 @@
             let html = '';
             
             sortedOTAs.forEach((ota, index) => {
-                const commission = ota.sales * 0.25; // تخمین 25% کمیسیون
+                const commission = ota.sales * 0.25;
                 const net = ota.sales - commission;
                 const share = ((ota.sales / totalOTASales) * 100).toFixed(1);
                 
@@ -908,7 +982,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 10. UPDATE TOURS TABLE (با داده‌های واقعی) -----
+        // ----- 11. UPDATE TOURS TABLE -----
         function updateToursTable(tourSales) {
             const tbody = document.getElementById('toursTable');
             
@@ -929,7 +1003,6 @@
             let html = '';
             
             sortedTours.forEach((tour, index) => {
-                // کوتاه‌کردن نام تور
                 let shortName = tour.name;
                 if (tour.name.length > 25) {
                     shortName = tour.name.substring(0, 22) + '...';
@@ -946,7 +1019,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 11. INIT -----
+        // ----- 12. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
             loadSalesDataWithFilter();
