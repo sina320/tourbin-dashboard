@@ -482,7 +482,7 @@
                         <tr><th>Agent</th><th>Sales</th><th>Commission</th><th>Trend</th></tr>
                     </thead>
                     <tbody id="agentsTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading agent data...</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -496,7 +496,7 @@
                         <tr><th>OTA</th><th>Gross</th><th>Net</th><th>Share</th></tr>
                     </thead>
                     <tbody id="otasTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading OTA data...</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -510,7 +510,7 @@
                         <tr><th>Tour</th><th>Bookings</th><th>Revenue</th><th>Channel</th></tr>
                     </thead>
                     <tbody id="toursTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading tour data...</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -554,14 +554,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.20.0</span>
+                <span class="footer-value" id="footerVersion">v2.21.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 20 (FINAL TABLE FIX)
+        // TOURBIN DASHBOARD - STEP 21 (FINAL WORKING VERSION)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -801,17 +801,7 @@
                 });
                 
                 console.log(`✅ Found ${transactions.length} transactions in this period`);
-                console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
-                
-                if (transactions.length > 0) {
-                    console.log('📋 First transaction FULL structure:');
-                    console.log(JSON.stringify(transactions[0], null, 2));
-                    console.log('📋 Available fields:', Object.keys(transactions[0]));
-                }
-                
-                console.log('👥 Agent sales:', agentSales);
-                console.log('🌍 OTA sales:', otaSales);
-                console.log('🗺️ Tour sales:', tourSales);
+                console.log(`💰 Total sales: $${totalSales.toFixed(2)}`);
                 
                 // آپدیت کارت‌ها
                 document.getElementById('totalSales').innerHTML = `$${totalSales.toFixed(2)}`;
@@ -835,9 +825,14 @@
                 }
                 
                 // آپدیت جداول
-                updateAgentsTable(agentSales);
-                updateOTAsTable(otaSales);
-                updateToursTable(tourSales);
+                console.log('👥 Agent sales:', agentSales);
+                console.log('🌍 OTA sales:', otaSales);
+                console.log('🗺️ Tour sales:', tourSales);
+                
+                // جداول را مستقیماً از اینجا آپدیت می‌کنیم
+                updateAgentsTableDirect(agentSales);
+                updateOTAsTableDirect(otaSales);
+                updateToursTableDirect(tourSales);
                 
                 // آپدیت نمودارها
                 updateSalesChart(transactions, startDate, endDate);
@@ -848,18 +843,116 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.20.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.21.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
                 console.error('❌ Error loading sales data:', error);
-                document.getElementById('agentsTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
-                document.getElementById('otasTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
-                document.getElementById('toursTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
             }
         }
 
-        // ----- 8. UPDATE SALES CHART -----
+        // ----- 8. DIRECT TABLE UPDATES -----
+        function updateAgentsTableDirect(agentSales) {
+            const tbody = document.getElementById('agentsTable');
+            
+            const entries = Object.entries(agentSales);
+            console.log('Agent entries:', entries);
+            
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>';
+                return;
+            }
+            
+            const sorted = entries
+                .map(([name, sales]) => ({ name, sales }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+            
+            let html = '';
+            sorted.forEach((agent, i) => {
+                let rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+                const commission = agent.sales * 0.1;
+                html += `<tr>
+                    <td>${rank} ${agent.name}</td>
+                    <td>$${agent.sales.toFixed(2)}</td>
+                    <td>$${commission.toFixed(2)}</td>
+                    <td class="trend-neutral">—</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            console.log('✅ Agents table updated directly');
+        }
+
+        function updateOTAsTableDirect(otaSales) {
+            const tbody = document.getElementById('otasTable');
+            
+            const entries = Object.entries(otaSales);
+            console.log('OTA entries:', entries);
+            
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>';
+                return;
+            }
+            
+            const sorted = entries
+                .map(([name, sales]) => ({ name, sales }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+            
+            const total = sorted.reduce((sum, ota) => sum + ota.sales, 0);
+            
+            let html = '';
+            sorted.forEach((ota, i) => {
+                let rate = ota.name === 'GetYourGuide' ? 0.30 : 0.25;
+                const commission = ota.sales * rate;
+                const net = ota.sales - commission;
+                const share = ((ota.sales / total) * 100).toFixed(1);
+                html += `<tr>
+                    <td>${i+1}. ${ota.name}</td>
+                    <td>$${ota.sales.toFixed(2)}</td>
+                    <td>$${net.toFixed(2)}</td>
+                    <td>${share}%</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            console.log('✅ OTAs table updated directly');
+        }
+
+        function updateToursTableDirect(tourSales) {
+            const tbody = document.getElementById('toursTable');
+            
+            const entries = Object.entries(tourSales);
+            console.log('Tour entries:', entries);
+            
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>';
+                return;
+            }
+            
+            const sorted = entries
+                .map(([name, data]) => ({ 
+                    name: name, 
+                    revenue: data.revenue, 
+                    bookings: data.bookings 
+                }))
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 5);
+            
+            let html = '';
+            sorted.forEach((tour, i) => {
+                let shortName = tour.name.length > 25 ? tour.name.substring(0, 22) + '...' : tour.name;
+                html += `<tr>
+                    <td>${i+1}. ${shortName}</td>
+                    <td>${tour.bookings}</td>
+                    <td>$${tour.revenue.toFixed(2)}</td>
+                    <td><span class="badge">OTA</span></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            console.log('✅ Tours table updated directly');
+        }
+
+        // ----- 9. UPDATE SALES CHART -----
         function updateSalesChart(transactions, startDate, endDate) {
             const salesByDate = {};
             
@@ -910,7 +1003,7 @@
             }
         }
 
-        // ----- 9. UPDATE CHANNEL CHART -----
+        // ----- 10. UPDATE CHANNEL CHART -----
         function updateChannelChart(transactions) {
             let otaTotal = 0;
             let agentTotal = 0;
@@ -937,147 +1030,7 @@
             }
         }
 
-        // ----- 10. UPDATE AGENTS TABLE -----
-        function updateAgentsTable(agentSales) {
-            console.log('🔄 Updating Agents table with data:', agentSales);
-            console.log('🔍 Agent keys:', Object.keys(agentSales));
-            console.log('🔍 Agent values:', Object.values(agentSales));
-            console.log('🔍 Agent entries:', Object.entries(agentSales));
-            
-            const tbody = document.getElementById('agentsTable');
-            
-            const sortedAgents = Object.entries(agentSales)
-                .map(([name, sales]) => ({ name, sales }))
-                .sort((a, b) => b.sales - a.sales)
-                .slice(0, 5);
-            
-            console.log('🔍 Sorted agents:', sortedAgents);
-            
-            if (sortedAgents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>';
-                return;
-            }
-            
-            let html = '';
-            
-            sortedAgents.forEach((agent, index) => {
-                let rank = '';
-                if (index === 0) rank = '🥇';
-                else if (index === 1) rank = '🥈';
-                else if (index === 2) rank = '🥉';
-                else rank = `${index + 1}.`;
-                
-                const commission = agent.sales * 0.1;
-                
-                let trend = '—';
-                let trendClass = 'trend-neutral';
-                
-                html += `<tr>
-                    <td>${rank} ${agent.name}</td>
-                    <td>$${agent.sales.toFixed(2)}</td>
-                    <td>$${commission.toFixed(2)}</td>
-                    <td class="${trendClass}">${trend}</td>
-                </tr>`;
-            });
-            
-            tbody.innerHTML = html;
-            console.log('✅ Agents table updated');
-        }
-
-        // ----- 11. UPDATE OTAs TABLE -----
-        function updateOTAsTable(otaSales) {
-            console.log('🔄 Updating OTAs table with data:', otaSales);
-            console.log('🔍 OTA keys:', Object.keys(otaSales));
-            console.log('🔍 OTA values:', Object.values(otaSales));
-            console.log('🔍 OTA entries:', Object.entries(otaSales));
-            
-            const tbody = document.getElementById('otasTable');
-            
-            const sortedOTAs = Object.entries(otaSales)
-                .map(([name, sales]) => ({ name, sales }))
-                .sort((a, b) => b.sales - a.sales)
-                .slice(0, 5);
-            
-            console.log('🔍 Sorted OTAs:', sortedOTAs);
-            
-            if (sortedOTAs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>';
-                return;
-            }
-            
-            const totalOTASales = sortedOTAs.reduce((sum, ota) => sum + ota.sales, 0);
-            
-            let html = '';
-            
-            sortedOTAs.forEach((ota, index) => {
-                let commissionRate = 0.25;
-                if (ota.name === 'GetYourGuide') commissionRate = 0.30;
-                if (ota.name === 'Viator') commissionRate = 0.25;
-                
-                const commission = ota.sales * commissionRate;
-                const net = ota.sales - commission;
-                const share = ((ota.sales / totalOTASales) * 100).toFixed(1);
-                
-                html += `<tr>
-                    <td>${index + 1}. ${ota.name}</td>
-                    <td>$${ota.sales.toFixed(2)}</td>
-                    <td>$${net.toFixed(2)}</td>
-                    <td>${share}%</td>
-                </tr>`;
-            });
-            
-            tbody.innerHTML = html;
-            console.log('✅ OTAs table updated');
-        }
-
-        // ----- 12. UPDATE TOURS TABLE -----
-        function updateToursTable(tourSales) {
-            console.log('🔄 Updating Tours table with data:', tourSales);
-            console.log('🔍 Tour keys:', Object.keys(tourSales));
-            console.log('🔍 Tour values:', Object.values(tourSales));
-            console.log('🔍 Tour entries:', Object.entries(tourSales));
-            
-            const tbody = document.getElementById('toursTable');
-            
-            const sortedTours = Object.entries(tourSales)
-                .map(([name, data]) => ({ 
-                    name: name, 
-                    revenue: data.revenue, 
-                    bookings: data.bookings 
-                }))
-                .sort((a, b) => b.revenue - a.revenue)
-                .slice(0, 5);
-            
-            console.log('🔍 Sorted tours:', sortedTours);
-            
-            if (sortedTours.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>';
-                return;
-            }
-            
-            let html = '';
-            
-            sortedTours.forEach((tour, index) => {
-                let shortName = tour.name;
-                if (tour.name.length > 25) {
-                    shortName = tour.name.substring(0, 22) + '...';
-                }
-                
-                let channel = 'OTA';
-                
-                html += `<tr>
-                    <td>${index + 1}. ${shortName}</td>
-                    <td>${tour.bookings}</td>
-                    <td>$${tour.revenue.toFixed(2)}</td>
-                    <td><span class="badge">${channel}</span></td>
-                </tr>`;
-            });
-            
-            tbody.innerHTML = html;
-            console.log('✅ Tours table updated');
-        }
-
-        // ----- 13. INIT -----
+        // ----- 11. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
             loadSalesDataWithFilter();
