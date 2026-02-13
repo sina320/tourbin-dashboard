@@ -554,14 +554,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.19.0</span>
+                <span class="footer-value" id="footerVersion">v2.20.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 19 (FIX TABLE DISPLAY)
+        // TOURBIN DASHBOARD - STEP 20 (FINAL TABLE FIX)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -848,7 +848,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.19.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.20.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -940,12 +940,18 @@
         // ----- 10. UPDATE AGENTS TABLE -----
         function updateAgentsTable(agentSales) {
             console.log('🔄 Updating Agents table with data:', agentSales);
+            console.log('🔍 Agent keys:', Object.keys(agentSales));
+            console.log('🔍 Agent values:', Object.values(agentSales));
+            console.log('🔍 Agent entries:', Object.entries(agentSales));
+            
             const tbody = document.getElementById('agentsTable');
             
             const sortedAgents = Object.entries(agentSales)
                 .map(([name, sales]) => ({ name, sales }))
                 .sort((a, b) => b.sales - a.sales)
                 .slice(0, 5);
+            
+            console.log('🔍 Sorted agents:', sortedAgents);
             
             if (sortedAgents.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>';
@@ -963,7 +969,6 @@
                 
                 const commission = agent.sales * 0.1;
                 
-                // روند (برای داده‌های واقعی باید از تاریخچه استفاده کرد)
                 let trend = '—';
                 let trendClass = 'trend-neutral';
                 
@@ -976,17 +981,24 @@
             });
             
             tbody.innerHTML = html;
+            console.log('✅ Agents table updated');
         }
 
         // ----- 11. UPDATE OTAs TABLE -----
         function updateOTAsTable(otaSales) {
             console.log('🔄 Updating OTAs table with data:', otaSales);
+            console.log('🔍 OTA keys:', Object.keys(otaSales));
+            console.log('🔍 OTA values:', Object.values(otaSales));
+            console.log('🔍 OTA entries:', Object.entries(otaSales));
+            
             const tbody = document.getElementById('otasTable');
             
             const sortedOTAs = Object.entries(otaSales)
                 .map(([name, sales]) => ({ name, sales }))
                 .sort((a, b) => b.sales - a.sales)
                 .slice(0, 5);
+            
+            console.log('🔍 Sorted OTAs:', sortedOTAs);
             
             if (sortedOTAs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>';
@@ -998,8 +1010,7 @@
             let html = '';
             
             sortedOTAs.forEach((ota, index) => {
-                // درصد کمیسیون متفاوت برای هر OTA
-                let commissionRate = 0.25; // پیش‌فرض 25%
+                let commissionRate = 0.25;
                 if (ota.name === 'GetYourGuide') commissionRate = 0.30;
                 if (ota.name === 'Viator') commissionRate = 0.25;
                 
@@ -1016,11 +1027,16 @@
             });
             
             tbody.innerHTML = html;
+            console.log('✅ OTAs table updated');
         }
 
         // ----- 12. UPDATE TOURS TABLE -----
         function updateToursTable(tourSales) {
             console.log('🔄 Updating Tours table with data:', tourSales);
+            console.log('🔍 Tour keys:', Object.keys(tourSales));
+            console.log('🔍 Tour values:', Object.values(tourSales));
+            console.log('🔍 Tour entries:', Object.entries(tourSales));
+            
             const tbody = document.getElementById('toursTable');
             
             const sortedTours = Object.entries(tourSales)
@@ -1031,6 +1047,8 @@
                 }))
                 .sort((a, b) => b.revenue - a.revenue)
                 .slice(0, 5);
+            
+            console.log('🔍 Sorted tours:', sortedTours);
             
             if (sortedTours.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>';
@@ -1045,7 +1063,6 @@
                     shortName = tour.name.substring(0, 22) + '...';
                 }
                 
-                // تعیین کانال اصلی (بر اساس بیشترین فروش)
                 let channel = 'OTA';
                 
                 html += `<tr>
@@ -1057,6 +1074,7 @@
             });
             
             tbody.innerHTML = html;
+            console.log('✅ Tours table updated');
         }
 
         // ----- 13. INIT -----
