@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.13.0</span>
+                <span class="footer-value" id="footerVersion">v2.14.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 13 (REAL TABLES)
+        // TOURBIN DASHBOARD - STEP 14 (FINAL TABLES)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -755,7 +755,7 @@
                     
                     // Tour sales
                     if (data.product_title && data.product_title.trim() !== '') {
-                        const tourName = data.product_title;
+                        const tourName = data.product_title.trim();
                         if (!tourSales[tourName]) {
                             tourSales[tourName] = {
                                 revenue: 0,
@@ -813,7 +813,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.13.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.14.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -914,7 +914,7 @@
             
             const sortedTours = Object.entries(tourSales)
                 .map(([name, data]) => ({ 
-                    name: name.trim(), 
+                    name: name, 
                     revenue: data.revenue, 
                     bookings: data.bookings 
                 }))
