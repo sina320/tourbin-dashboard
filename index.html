@@ -691,6 +691,41 @@
         // ----- 7. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
+
+// ===== STEP 2: TEST DATABASE QUERY =====
+async function testDatabaseQuery() {
+    try {
+        console.log('🔍 Testing database query...');
+        
+        // یک query ساده برای گرفتن ۵ تا از آخرین تراکنش‌ها
+        const snapshot = await db.collection('sales_transactions')
+            .limit(5)
+            .get();
+        
+        const transactions = [];
+        snapshot.forEach(doc => {
+            transactions.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        console.log(`✅ Found ${transactions.length} transactions in database`);
+        
+        if (transactions.length > 0) {
+            console.log('📊 Sample transaction:', transactions[0]);
+        } else {
+            console.log('⚠️ No transactions found in database');
+        }
+        
+    } catch (error) {
+        console.error('❌ Database query error:', error);
+    }
+}
+
+// اجرای تابع
+testDatabaseQuery();
+            
         };
     </script>
 </body>
