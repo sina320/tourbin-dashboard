@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Flatpickr Calendar -->
+    <!-- Flatpickr Calendar (Google-style) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -94,6 +94,7 @@
             border-radius: 999px;
             padding: 4px;
             cursor: pointer;
+            min-width: 280px;
         }
 
         .date-range-display {
@@ -137,11 +138,22 @@
             color: var(--tb-gray-600);
             cursor: pointer;
             border: none;
+            transition: all 0.1s ease;
+        }
+
+        .tag:hover {
+            background: var(--tb-teal-light);
+            color: var(--tb-teal);
+        }
+
+        .tag.active {
+            background: var(--tb-navy);
+            color: white;
         }
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 28px;
         }
@@ -157,11 +169,17 @@
             font-size: 11px;
             color: var(--tb-gray-500);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 4px;
             font-weight: 600;
+        }
+
+        .kpi-label i {
+            color: var(--tb-teal);
+            font-size: 12px;
         }
 
         .kpi-value {
@@ -173,20 +191,6 @@
 
         .kpi-trend {
             font-size: 12px;
-            color: var(--tb-gray-500);
-        }
-
-        .trend-up {
-            color: var(--tb-teal);
-            font-weight: 600;
-        }
-
-        .trend-down {
-            color: var(--tb-error);
-            font-weight: 600;
-        }
-
-        .trend-neutral {
             color: var(--tb-gray-500);
         }
 
@@ -218,6 +222,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .chart-title i {
+            color: var(--tb-teal);
         }
 
         .chart-container {
@@ -256,6 +264,10 @@
             gap: 8px;
         }
 
+        .table-title i {
+            color: var(--tb-teal);
+        }
+
         .badge {
             padding: 4px 12px;
             background: var(--tb-teal-light);
@@ -263,11 +275,6 @@
             border-radius: 999px;
             font-size: 11px;
             font-weight: 600;
-        }
-
-        .badge-warning {
-            background: var(--tb-warning-light);
-            color: var(--tb-warning);
         }
 
         .table {
@@ -290,6 +297,10 @@
             border-bottom: 1px solid #F1F5F9;
         }
 
+        .rank-1 { color: #FFB347; font-weight: 600; }
+        .rank-2 { color: #A0AEC0; font-weight: 600; }
+        .rank-3 { color: #CD7F32; font-weight: 600; }
+
         .knowledge-base {
             background: var(--tb-white);
             border-radius: 20px;
@@ -308,6 +319,10 @@
             gap: 8px;
         }
 
+        .knowledge-title i {
+            color: var(--tb-teal);
+        }
+
         .modules-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -324,10 +339,13 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.15s ease;
+            border: 1px solid transparent;
         }
 
         .module-item:hover {
             background: var(--tb-teal-light);
+            border-color: var(--tb-teal);
+            transform: translateY(-2px);
         }
 
         .module-item i {
@@ -367,6 +385,10 @@
             gap: 4px;
         }
 
+        .footer-label i {
+            color: var(--tb-teal);
+        }
+
         .footer-value {
             font-size: 14px;
             font-weight: 600;
@@ -387,9 +409,9 @@
             </div>
         </div>
 
-        <!-- CALENDAR -->
+        <!-- CALENDAR - Google-style -->
         <div class="calendar-section">
-            <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
                 <div class="date-range-picker" id="dateRangePicker">
                     <div class="date-range-display">
                         <i class="fas fa-calendar-alt"></i>
@@ -410,37 +432,27 @@
             </div>
         </div>
 
-        <!-- KPI GRID -->
+        <!-- KPI GRID - فقط ۴ کارت ضروری -->
         <div class="kpi-grid">
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-wallet"></i> Total Sales</div>
                 <div class="kpi-value" id="totalSales">$0</div>
-                <div class="kpi-trend" id="totalSalesTrend">Loading...</div>
+                <div class="kpi-trend" id="totalSalesTrend">Confirmed only</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label"><i class="fas fa-bullseye"></i> Target</div>
-                <div class="kpi-value" id="targetPercent">0%</div>
-                <div class="kpi-trend">of $100,000</div>
+                <div class="kpi-label"><i class="fas fa-users"></i> Total Passengers</div>
+                <div class="kpi-value" id="totalPax">0</div>
+                <div class="kpi-trend" id="paxTrend">In selected period</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label"><i class="fas fa-globe"></i> Direct Sales</div>
-                <div class="kpi-value" id="directSales">$0</div>
-                <div class="kpi-trend" id="directSalesTrend">No data</div>
+                <div class="kpi-label"><i class="fas fa-ticket-alt"></i> Avg per Tour</div>
+                <div class="kpi-value" id="avgTour">$0</div>
+                <div class="kpi-trend" id="avgTrend">Per transaction</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-hand-holding-usd"></i> Commission</div>
                 <div class="kpi-value" id="commissionTotal">$0</div>
-                <div class="kpi-trend">10% of sales</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label"><i class="fas fa-users"></i> Total PAX</div>
-                <div class="kpi-value" id="totalPax">0</div>
-                <div class="kpi-trend">avg per tour</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label"><i class="fas fa-ticket-alt"></i> Avg Tour</div>
-                <div class="kpi-value" id="avgTour">$0</div>
-                <div class="kpi-trend">per transaction</div>
+                <div class="kpi-trend" id="commissionTrend">10% of sales</div>
             </div>
         </div>
 
@@ -451,7 +463,7 @@
                     <div class="chart-title">
                         <i class="fas fa-chart-line"></i> Daily Sales Trend
                     </div>
-                    <span class="badge">Actual vs 3-day avg</span>
+                    <span class="badge">Confirmed only</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="salesChart"></canvas>
@@ -472,23 +484,29 @@
 
         <!-- TABLES -->
         <div class="tables-grid">
+            <!-- Top Agents -->
             <div class="table-card">
                 <div class="table-header">
-                    <div class="table-title"><i class="fas fa-trophy"></i> Top Agents</div>
+                    <div class="table-title">
+                        <i class="fas fa-trophy"></i> Top Agents
+                    </div>
                     <span class="badge">10% commission</span>
                 </div>
                 <table class="table">
                     <thead>
-                        <tr><th>Agent</th><th>Sales</th><th>Commission</th><th>Trend</th></tr>
+                        <tr><th>Agent</th><th>Sales</th><th>Commission</th><th>Rank</th></tr>
                     </thead>
                     <tbody id="agentsTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748B;">No agent sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
+            <!-- Top OTAs -->
             <div class="table-card">
                 <div class="table-header">
-                    <div class="table-title"><i class="fas fa-globe"></i> Top OTAs</div>
+                    <div class="table-title">
+                        <i class="fas fa-globe"></i> Top OTAs
+                    </div>
                     <span class="badge">net after commission</span>
                 </div>
                 <table class="table">
@@ -496,13 +514,16 @@
                         <tr><th>OTA</th><th>Gross</th><th>Net</th><th>Share</th></tr>
                     </thead>
                     <tbody id="otasTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748B;">No OTA sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
+            <!-- Top Tours -->
             <div class="table-card">
                 <div class="table-header">
-                    <div class="table-title"><i class="fas fa-map-marked-alt"></i> Top Tours</div>
+                    <div class="table-title">
+                        <i class="fas fa-map-marked-alt"></i> Top Tours
+                    </div>
                     <span class="badge">by revenue</span>
                 </div>
                 <table class="table">
@@ -510,7 +531,7 @@
                         <tr><th>Tour</th><th>Bookings</th><th>Revenue</th><th>Channel</th></tr>
                     </thead>
                     <tbody id="toursTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748B;">No tour sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -542,26 +563,26 @@
         <div class="dashboard-footer">
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-calendar-alt"></i> Report Period</span>
-                <span class="footer-value" id="footerPeriod">Feb 1 — Feb 12, 2026</span>
+                <span class="footer-value" id="footerPeriod">Loading...</span>
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-clock"></i> Generated</span>
                 <span class="footer-value" id="footerGenerated">Loading...</span>
             </div>
             <div class="footer-item">
-                <span class="footer-label"><i class="fas fa-user-shield"></i> User</span>
-                <span class="footer-value" id="footerUser">Sales Manager</span>
+                <span class="footer-label"><i class="fas fa-user-shield"></i> Status Filter</span>
+                <span class="footer-value" id="footerStatus">Confirmed + Arrived</span>
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.22.0</span>
+                <span class="footer-value" id="footerVersion">v3.0.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 22 (FINAL WORKING VERSION)
+        // TOURBIN DASHBOARD - FINAL VERSION
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -580,30 +601,39 @@
         
         console.log('🔥 Firebase connected successfully!');
 
-        // ----- 3. CALENDAR SETUP -----
+        // ----- 3. GOOGLE-STYLE CALENDAR SETUP -----
         const today = new Date();
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         
         const startDate = firstDayOfMonth.toISOString().split('T')[0];
         const endDate = today.toISOString().split('T')[0];
 
-        flatpickr("#dateRangePicker", {
+        // Initialize flatpickr
+        const calendar = flatpickr("#dateRangePicker", {
             mode: "range",
             dateFormat: "Y-m-d",
             defaultDate: [startDate, endDate],
-            onChange: function(selectedDates, dateStr) {
-                const dates = dateStr.split(' to ');
-                if (dates.length === 2) {
-                    const start = new Date(dates[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const end = new Date(dates[1]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    document.getElementById('dateRangeText').innerHTML = `${start} — ${end}`;
+            onChange: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    const start = selectedDates[0];
+                    const end = selectedDates[1];
                     
-                    window.selectedStartDate = dates[0];
-                    window.selectedEndDate = dates[1];
+                    // Update display
+                    const startDisplay = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const endDisplay = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
+                    
+                    // Store dates
+                    window.selectedStartDate = start.toISOString().split('T')[0];
+                    window.selectedEndDate = end.toISOString().split('T')[0];
+                    
+                    // Auto-load data
+                    loadSalesDataWithFilter();
                 }
             }
         });
 
+        // Set initial display
         const startDisplay = firstDayOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         const endDisplay = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
@@ -617,39 +647,24 @@
             type: 'line',
             data: {
                 labels: [],
-                datasets: [
-                    {
-                        label: 'Actual',
-                        data: [],
-                        borderColor: '#1D7A6B',
-                        backgroundColor: 'rgba(29,122,107,0.04)',
-                        borderWidth: 2,
-                        tension: 0.2,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#1D7A6B',
-                        fill: true
-                    },
-                    {
-                        label: '3-day avg',
-                        data: [],
-                        borderColor: '#64748B',
-                        borderWidth: 1.5,
-                        borderDash: [5, 5],
-                        tension: 0.2,
-                        pointRadius: 0,
-                        fill: false
-                    }
-                ]
+                datasets: [{
+                    label: 'Confirmed Sales',
+                    data: [],
+                    borderColor: '#1D7A6B',
+                    backgroundColor: 'rgba(29,122,107,0.04)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#1D7A6B',
+                    fill: true
+                }]
             },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: true, 
-                plugins: { 
-                    legend: { 
-                        display: true,
-                        position: 'top',
-                        labels: { usePointStyle: true, boxWidth: 8 }
-                    } 
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { backgroundColor: '#0A2A3B' }
                 },
                 scales: {
                     y: {
@@ -676,17 +691,18 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 cutout: '65%',
-                plugins: { 
-                    legend: { 
-                        position: 'bottom', 
-                        labels: { usePointStyle: true, boxWidth: 8 } 
-                    } 
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, boxWidth: 8, color: '#475569' }
+                    }
                 }
             }
         });
 
         // ----- 5. QUICK RANGE FUNCTION -----
         window.setQuickRange = function(range) {
+            // Update active tag
             document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             
@@ -718,47 +734,36 @@
                     break;
             }
             
-            const startStr = start.toISOString().split('T')[0];
-            const endStr = end.toISOString().split('T')[0];
-            
-            const startDisplay = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const endDisplay = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            
-            document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
-            
-            window.selectedStartDate = startStr;
-            window.selectedEndDate = endStr;
-            
-            console.log('📅 Quick range:', range, startStr, 'to', endStr);
-            loadSalesDataWithFilter();
+            // Update calendar
+            calendar.setDate([start, end]);
         };
 
         // ----- 6. APPLY BUTTON -----
         document.getElementById('applyDateBtn').addEventListener('click', function() {
-            console.log('✅ Apply button clicked');
             loadSalesDataWithFilter();
         });
 
-        // ----- 7. LOAD SALES DATA (WITH REAL DATE FILTER) -----
+        // ----- 7. LOAD SALES DATA (CONFIRMED + ARRIVED ONLY) -----
         async function loadSalesDataWithFilter() {
             try {
-                const startDate = window.selectedStartDate || '2026-02-01';
-                const endDate = window.selectedEndDate || '2026-02-12';
+                const startDate = window.selectedStartDate;
+                const endDate = window.selectedEndDate;
                 
-                console.log(`🔍 Fetching data from ${startDate} to ${endDate}...`);
+                console.log(`🔍 Fetching CONFIRMED/ARRIVED data from ${startDate} to ${endDate}...`);
                 
                 const snapshot = await db.collection('sales_transactions')
+                    .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
                     .where('report_date', '>=', startDate)
                     .where('report_date', '<=', endDate)
                     .get();
                 
                 let totalSales = 0;
-                let directSales = 0;
                 let totalPax = 0;
                 let agentSales = {};
                 let otaSales = {};
                 let tourSales = {};
                 const transactions = [];
+                const salesByDate = {};
                 
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -767,19 +772,27 @@
                     const price = data.total_price_usd || 0;
                     totalSales += price;
                     
-                    if (data.channel === 'Direct') {
-                        directSales += price;
+                    // Group by date for chart
+                    const date = data.report_date;
+                    if (date) {
+                        salesByDate[date] = (salesByDate[date] || 0) + price;
                     }
                     
+                    // Count passengers
+                    totalPax += data.total_pax || 1;
+                    
+                    // Agent sales
                     if (data.agent_name && data.agent_name.trim() !== '') {
                         agentSales[data.agent_name] = (agentSales[data.agent_name] || 0) + price;
                     }
                     
+                    // OTA sales
                     if (data.channel && typeof data.channel === 'string' && data.channel.startsWith('OTA_')) {
                         const otaName = data.channel.replace('OTA_', '');
                         otaSales[otaName] = (otaSales[otaName] || 0) + price;
                     }
                     
+                    // Tour sales
                     if (data.product_title && data.product_title.trim() !== '') {
                         const tourName = data.product_title.trim();
                         if (!tourSales[tourName]) {
@@ -788,45 +801,33 @@
                         tourSales[tourName].revenue += price;
                         tourSales[tourName].bookings += 1;
                     }
-                    
-                    totalPax += data.total_pax || 1;
                 });
                 
-                console.log(`✅ Found ${transactions.length} transactions in this period`);
+                console.log(`✅ Found ${transactions.length} confirmed transactions`);
                 console.log(`💰 Total sales: $${totalSales.toFixed(2)}`);
-                console.log('👥 Agent sales:', agentSales);
-                console.log('🌍 OTA sales:', otaSales);
-                console.log('🗺️ Tour sales:', tourSales);
+                console.log(`👥 Total passengers: ${totalPax}`);
                 
-                // آپدیت کارت‌ها
+                // Update KPI cards
                 document.getElementById('totalSales').innerHTML = `$${totalSales.toFixed(2)}`;
-                document.getElementById('directSales').innerHTML = `$${directSales.toFixed(2)}`;
-                document.getElementById('commissionTotal').innerHTML = `$${(totalSales * 0.1).toFixed(2)}`;
                 document.getElementById('totalPax').innerHTML = totalPax;
                 document.getElementById('avgTour').innerHTML = `$${transactions.length ? Math.round(totalSales / transactions.length) : 0}`;
-                document.getElementById('targetPercent').innerHTML = `${((totalSales / 100000) * 100).toFixed(0)}%`;
+                document.getElementById('commissionTotal').innerHTML = `$${(totalSales * 0.1).toFixed(2)}`;
                 
-                if (directSales === 0) {
-                    document.getElementById('directSales').style.color = 'var(--tb-error)';
-                } else {
-                    document.getElementById('directSales').style.color = 'var(--tb-navy)';
-                }
-                
-                // آپدیت جداول
+                // Update tables
                 updateAgentsTable(agentSales);
                 updateOTAsTable(otaSales);
                 updateToursTable(tourSales);
                 
-                // آپدیت نمودارها
-                updateSalesChart(transactions, startDate, endDate);
-                updateChannelChart(transactions);
+                // Update charts
+                updateSalesChart(salesByDate, startDate, endDate);
+                updateChannelChart(otaSales, agentSales);
                 
-                // آپدیت فوتر
+                // Update footer
                 const now = new Date();
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.22.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
+                document.getElementById('footerVersion').innerHTML = `v3.0.0 · Data: ${now.toISOString().split('T')[0]}`;
                 
             } catch (error) {
                 console.error('❌ Error loading sales data:', error);
@@ -839,7 +840,7 @@
             const entries = Object.entries(agentSales);
             
             if (entries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748B;">No agent sales in this period</td></tr>';
                 return;
             }
             
@@ -850,17 +851,18 @@
             
             let html = '';
             sorted.forEach((agent, i) => {
-                let rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+                const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+                const rankSymbol = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
                 const commission = agent.sales * 0.1;
+                
                 html += `<tr>
-                    <td>${rank} ${agent.name}</td>
+                    <td><span class="${rankClass}">${rankSymbol}</span> ${agent.name}</td>
                     <td>$${agent.sales.toFixed(2)}</td>
                     <td>$${commission.toFixed(2)}</td>
-                    <td class="trend-neutral">—</td>
+                    <td><span class="${rankClass}">#${i+1}</span></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
-            console.log('✅ Agents table updated');
         }
 
         // ----- 9. UPDATE OTAs TABLE -----
@@ -869,7 +871,7 @@
             const entries = Object.entries(otaSales);
             
             if (entries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748B;">No OTA sales in this period</td></tr>';
                 return;
             }
             
@@ -882,9 +884,10 @@
             
             let html = '';
             sorted.forEach((ota, i) => {
-                let rate = ota.name === 'GetYourGuide' ? 0.30 : 0.25;
-                const net = ota.sales * (1 - rate);
+                const commissionRate = ota.name === 'GetYourGuide' ? 0.30 : 0.25;
+                const net = ota.sales * (1 - commissionRate);
                 const share = ((ota.sales / total) * 100).toFixed(1);
+                
                 html += `<tr>
                     <td>${i+1}. ${ota.name}</td>
                     <td>$${ota.sales.toFixed(2)}</td>
@@ -893,7 +896,6 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
-            console.log('✅ OTAs table updated');
         }
 
         // ----- 10. UPDATE TOURS TABLE -----
@@ -902,22 +904,26 @@
             const entries = Object.entries(tourSales);
             
             if (entries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748B;">No tour sales in this period</td></tr>';
                 return;
             }
             
             const sorted = entries
-                .map(([name, data]) => ({ 
-                    name: name, 
-                    revenue: data.revenue, 
-                    bookings: data.bookings 
+                .map(([name, data]) => ({
+                    name: name,
+                    revenue: data.revenue,
+                    bookings: data.bookings
                 }))
                 .sort((a, b) => b.revenue - a.revenue)
                 .slice(0, 5);
             
             let html = '';
             sorted.forEach((tour, i) => {
-                let shortName = tour.name.length > 25 ? tour.name.substring(0, 22) + '...' : tour.name;
+                let shortName = tour.name;
+                if (tour.name.length > 25) {
+                    shortName = tour.name.substring(0, 22) + '...';
+                }
+                
                 html += `<tr>
                     <td>${i+1}. ${shortName}</td>
                     <td>${tour.bookings}</td>
@@ -926,65 +932,52 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
-            console.log('✅ Tours table updated');
         }
 
         // ----- 11. UPDATE SALES CHART -----
-        function updateSalesChart(transactions, startDate, endDate) {
-            const salesByDate = {};
-            transactions.forEach(t => {
-                if (t.report_date) {
-                    salesByDate[t.report_date] = (salesByDate[t.report_date] || 0) + (t.total_price_usd || 0);
-                }
-            });
+        function updateSalesChart(salesByDate, startDate, endDate) {
+            const labels = [];
+            const data = [];
             
-            const labels = [], data = [];
             let currentDate = new Date(startDate);
             const lastDate = new Date(endDate);
             
             while (currentDate <= lastDate) {
                 const dateStr = currentDate.toISOString().split('T')[0];
-                labels.push(dateStr.slice(5));
+                const displayDate = dateStr.slice(5); // MM-DD
+                
+                labels.push(displayDate);
                 data.push(salesByDate[dateStr] || 0);
+                
                 currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            const movingAvg = [];
-            for (let i = 0; i < data.length; i++) {
-                if (i < 2) movingAvg.push(null);
-                else movingAvg.push(parseFloat(((data[i] + data[i-1] + data[i-2]) / 3).toFixed(2)));
             }
             
             if (window.salesChart) {
                 window.salesChart.data.labels = labels;
                 window.salesChart.data.datasets[0].data = data;
-                window.salesChart.data.datasets[1].data = movingAvg;
                 window.salesChart.update();
             }
         }
 
         // ----- 12. UPDATE CHANNEL CHART -----
-        function updateChannelChart(transactions) {
-            let ota = 0, agent = 0, direct = 0;
-            transactions.forEach(t => {
-                const price = t.total_price_usd || 0;
-                const channel = t.channel || '';
-                if (channel === 'Direct') direct += price;
-                else if (channel === 'Agent') agent += price;
-                else if (channel?.startsWith('OTA_')) ota += price;
-            });
+        function updateChannelChart(otaSales, agentSales) {
+            const otaTotal = Object.values(otaSales).reduce((sum, val) => sum + val, 0);
+            const agentTotal = Object.values(agentSales).reduce((sum, val) => sum + val, 0);
             
-            console.log('📊 Channel totals:', { ota, agent, direct });
+            // Direct sales are not tracked separately in this version
+            const directTotal = 0;
+            
+            console.log('📊 Channel totals:', { otaTotal, agentTotal, directTotal });
             
             if (window.channelChart) {
-                window.channelChart.data.datasets[0].data = [ota, agent, direct];
+                window.channelChart.data.datasets[0].data = [otaTotal, agentTotal, directTotal];
                 window.channelChart.update();
             }
         }
 
         // ----- 13. INIT -----
         window.onload = function() {
-            console.log('🚀 TourBin Dashboard ready - No errors');
+            console.log('🚀 TourBin Dashboard ready - Confirmed/Arrived only');
             loadSalesDataWithFilter();
         };
     </script>
