@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.7.0</span>
+                <span class="footer-value" id="footerVersion">v2.8.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 7 (WITH TOURS)
+        // TOURBIN DASHBOARD - STEP 8 (REAL DATE FILTER)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -570,8 +570,11 @@
         console.log('🔥 Firebase connected successfully!');
 
         // ----- 3. CALENDAR SETUP -----
-        const startDate = '2026-02-01';
-        const endDate = '2026-02-12';
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const startDate = firstDayOfMonth.toISOString().split('T')[0];
+        const endDate = today.toISOString().split('T')[0];
 
         flatpickr("#dateRangePicker", {
             mode: "range",
@@ -583,32 +586,48 @@
                     const start = new Date(dates[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     const end = new Date(dates[1]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     document.getElementById('dateRangeText').innerHTML = `${start} — ${end}`;
+                    
+                    // ذخیره تاریخ‌ها به فرمت YYYY-MM-DD برای استفاده در query
+                    window.selectedStartDate = dates[0];
+                    window.selectedEndDate = dates[1];
                 }
             }
         });
 
-        const startDisplay = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const endDisplay = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const startDisplay = firstDayOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const endDisplay = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
+        
+        // ذخیره تاریخ‌های پیشفرض
+        window.selectedStartDate = startDate;
+        window.selectedEndDate = endDate;
 
         // ----- 4. CHARTS -----
         const ctx1 = document.getElementById('salesChart').getContext('2d');
         window.salesChart = new Chart(ctx1, {
             type: 'line',
             data: {
-                labels: ['Feb 6', 'Feb 7', 'Feb 8', 'Feb 9', 'Feb 10', 'Feb 11', 'Feb 12'],
+                labels: [],
                 datasets: [{
                     label: 'Actual',
-                    data: [1240, 1820, 1740, 1890, 2100, 2450, 2580],
+                    data: [],
                     borderColor: '#1D7A6B',
                     borderWidth: 2,
-                    tension: 0.2
+                    tension: 0.2,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#1D7A6B'
                 }]
             },
             options: { 
                 responsive: true, 
                 maintainAspectRatio: true, 
-                plugins: { legend: { display: false } } 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' }
+                    }
+                }
             }
         });
 
@@ -618,7 +637,7 @@
             data: {
                 labels: ['OTA', 'Agents', 'Direct'],
                 datasets: [{
-                    data: [58, 32, 10],
+                    data: [0, 0, 0],
                     backgroundColor: ['#E67E22', '#1D7A6B', '#94A3B8'],
                     borderWidth: 0,
                     borderRadius: 8
@@ -670,11 +689,18 @@
                     break;
             }
             
+            const startStr = start.toISOString().split('T')[0];
+            const endStr = end.toISOString().split('T')[0];
+            
             const startDisplay = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             const endDisplay = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
             document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
             
-            console.log('📅 Quick range:', range);
+            window.selectedStartDate = startStr;
+            window.selectedEndDate = endStr;
+            
+            console.log('📅 Quick range:', range, startStr, 'to', endStr);
             loadSalesDataWithFilter();
         };
 
@@ -684,14 +710,11 @@
             loadSalesDataWithFilter();
         });
 
-        // ----- 7. LOAD SALES DATA (WITH DATE FILTER) -----
+        // ----- 7. LOAD SALES DATA (WITH REAL DATE FILTER) -----
         async function loadSalesDataWithFilter() {
             try {
-                const dateRangeText = document.getElementById('dateRangeText').innerHTML;
-                console.log('📅 Current date range:', dateRangeText);
-                
-                const startDate = '2026-02-01';
-                const endDate = '2026-02-12';
+                const startDate = window.selectedStartDate || '2026-02-01';
+                const endDate = window.selectedEndDate || '2026-02-12';
                 
                 console.log(`🔍 Fetching data from ${startDate} to ${endDate}...`);
                 
@@ -787,7 +810,8 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.7.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.8.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
                 console.error('❌ Error loading sales data:', error);
@@ -902,7 +926,6 @@
             let html = '';
             
             sortedTours.forEach((tour, index) => {
-                // تعیین کانال اصلی (برای نمایش ساده)
                 let channel = 'Mixed';
                 if (index === 0) channel = 'GYG';
                 else if (index === 1) channel = 'Viator';
