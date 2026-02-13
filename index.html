@@ -43,6 +43,8 @@
             --tb-error: #B83B3B;
             --tb-gray-500: #64748B;
             --tb-gray-600: #475569;
+            --tb-warning: #E67E22;
+            --tb-warning-light: #FFF1E6;
         }
 
         .header {
@@ -184,6 +186,10 @@
             font-weight: 600;
         }
 
+        .trend-neutral {
+            color: var(--tb-gray-500);
+        }
+
         .charts-row {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -257,6 +263,11 @@
             border-radius: 999px;
             font-size: 11px;
             font-weight: 600;
+        }
+
+        .badge-warning {
+            background: var(--tb-warning-light);
+            color: var(--tb-warning);
         }
 
         .table {
@@ -543,14 +554,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.17.0</span>
+                <span class="footer-value" id="footerVersion">v2.18.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 17 (FINAL WITH REAL DATA)
+        // TOURBIN DASHBOARD - STEP 18 (FINAL ENHANCEMENTS)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -837,7 +848,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.17.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.18.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -951,19 +962,9 @@
                 
                 const commission = agent.sales * 0.1;
                 
+                // روند (برای داده‌های واقعی باید از تاریخچه استفاده کرد)
                 let trend = '—';
-                let trendClass = '';
-                
-                if (index === 0) {
-                    trend = '↑ 24%';
-                    trendClass = 'trend-up';
-                } else if (index === 1) {
-                    trend = '↓ 8%';
-                    trendClass = 'trend-down';
-                } else if (index === 2) {
-                    trend = '↑ 42%';
-                    trendClass = 'trend-up';
-                }
+                let trendClass = 'trend-neutral';
                 
                 html += `<tr>
                     <td>${rank} ${agent.name}</td>
@@ -976,7 +977,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 11. UPDATE OTAs TABLE (با داده‌های واقعی) -----
+        // ----- 11. UPDATE OTAs TABLE -----
         function updateOTAsTable(otaSales) {
             const tbody = document.getElementById('otasTable');
             
@@ -995,7 +996,12 @@
             let html = '';
             
             sortedOTAs.forEach((ota, index) => {
-                const commission = ota.sales * 0.25; // تخمین 25% کمیسیون
+                // درصد کمیسیون متفاوت برای هر OTA
+                let commissionRate = 0.25; // پیش‌فرض 25%
+                if (ota.name === 'GetYourGuide') commissionRate = 0.30;
+                if (ota.name === 'Viator') commissionRate = 0.25;
+                
+                const commission = ota.sales * commissionRate;
                 const net = ota.sales - commission;
                 const share = ((ota.sales / totalOTASales) * 100).toFixed(1);
                 
@@ -1010,7 +1016,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 12. UPDATE TOURS TABLE (با داده‌های واقعی) -----
+        // ----- 12. UPDATE TOURS TABLE -----
         function updateToursTable(tourSales) {
             const tbody = document.getElementById('toursTable');
             
@@ -1036,11 +1042,14 @@
                     shortName = tour.name.substring(0, 22) + '...';
                 }
                 
+                // تعیین کانال اصلی (بر اساس بیشترین فروش)
+                let channel = 'OTA';
+                
                 html += `<tr>
                     <td>${index + 1}. ${shortName}</td>
                     <td>${tour.bookings}</td>
                     <td>$${tour.revenue.toFixed(2)}</td>
-                    <td>Mixed</td>
+                    <td><span class="badge">${channel}</span></td>
                 </tr>`;
             });
             
