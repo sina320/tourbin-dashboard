@@ -552,7 +552,7 @@
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 3
+        // TOURBIN DASHBOARD - STEP 4
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -682,78 +682,81 @@
         // ----- 6. APPLY BUTTON -----
         document.getElementById('applyDateBtn').addEventListener('click', function() {
             console.log('✅ Apply button clicked');
+            loadSalesDataWithFilter();  // با کلیک روی Apply دوباره دیتا لود میشه
         });
-
-        // ----- 7. STEP 3: LOAD REAL SALES DATA -----
-
 
         // ----- 7. STEP 4: LOAD SALES DATA WITH DATE FILTER -----
-async function loadSalesDataWithFilter() {
-    try {
-        // گرفتن تاریخ از تقویم
-        const dateRangeText = document.getElementById('dateRangeText').innerHTML;
-        console.log('📅 Current date range:', dateRangeText);
-        
-        // برای الان از تاریخ‌های پیشفرض استفاده میکنیم
-        const startDate = '2026-02-01';
-        const endDate = '2026-02-12';
-        
-        console.log(`🔍 Fetching data from ${startDate} to ${endDate}...`);
-        
-        const snapshot = await db.collection('sales_transactions')
-            .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
-            .where('report_date', '>=', startDate)
-            .where('report_date', '<=', endDate)
-            .get();
-        
-        let totalSales = 0;
-        const transactions = [];
-        
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            transactions.push(data);
-            totalSales += data.total_price_usd || 0;
-        });
-        
-        console.log(`✅ Found ${transactions.length} transactions in this period`);
-        console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
-        console.log('📊 First transaction:', transactions[0]);
-        
-        // آپدیت کارت‌ها
-        document.getElementById('totalSales').innerHTML = `$${totalSales.toLocaleString()}`;
-        
-        const commission = totalSales * 0.1;
-        document.getElementById('commissionTotal').innerHTML = `$${commission.toLocaleString()}`;
-        
-        let totalPax = 0;
-        transactions.forEach(t => {
-            totalPax += t.total_pax || 1;
-        });
-        document.getElementById('totalPax').innerHTML = totalPax.toLocaleString();
-        
-        const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
-        document.getElementById('avgTour').innerHTML = `$${avgTour}`;
-        
-        // اگر فروش مستقیم صفر بود
-        let directSales = 0;
-        transactions.forEach(t => {
-            if (t.channel === 'Direct') directSales += t.total_price_usd || 0;
-        });
-        
-        if (directSales === 0) {
-            document.getElementById('directSales').innerHTML = '$0';
-            document.getElementById('directSales').style.color = 'var(--tb-error)';
+        async function loadSalesDataWithFilter() {
+            try {
+                const dateRangeText = document.getElementById('dateRangeText').innerHTML;
+                console.log('📅 Current date range:', dateRangeText);
+                
+                // برای الان از تاریخ‌های پیشفرض استفاده میکنیم
+                const startDate = '2026-02-01';
+                const endDate = '2026-02-12';
+                
+                console.log(`🔍 Fetching data from ${startDate} to ${endDate}...`);
+                
+                const snapshot = await db.collection('sales_transactions')
+                    .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
+                    .where('report_date', '>=', startDate)
+                    .where('report_date', '<=', endDate)
+                    .get();
+                
+                let totalSales = 0;
+                const transactions = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    transactions.push(data);
+                    totalSales += data.total_price_usd || 0;
+                });
+                
+                console.log(`✅ Found ${transactions.length} transactions in this period`);
+                console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
+                
+                if (transactions.length > 0) {
+                    console.log('📊 First transaction:', transactions[0]);
+                }
+                
+                // آپدیت کارت‌ها
+                document.getElementById('totalSales').innerHTML = `$${totalSales.toLocaleString()}`;
+                
+                const commission = totalSales * 0.1;
+                document.getElementById('commissionTotal').innerHTML = `$${commission.toLocaleString()}`;
+                
+                let totalPax = 0;
+                transactions.forEach(t => {
+                    totalPax += t.total_pax || 1;
+                });
+                document.getElementById('totalPax').innerHTML = totalPax.toLocaleString();
+                
+                const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
+                document.getElementById('avgTour').innerHTML = `$${avgTour}`;
+                
+                // بررسی فروش مستقیم
+                let directSales = 0;
+                transactions.forEach(t => {
+                    if (t.channel === 'Direct') directSales += t.total_price_usd || 0;
+                });
+                
+                document.getElementById('directSales').innerHTML = `$${directSales.toLocaleString()}`;
+                
+                if (directSales === 0) {
+                    document.getElementById('directSales').style.color = 'var(--tb-error)';
+                } else {
+                    document.getElementById('directSales').style.color = 'var(--tb-navy)';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading sales data:', error);
+            }
         }
-        
-    } catch (error) {
-        console.error('❌ Error loading sales data:', error);
-    }
-}
 
         // ----- 8. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
-            loadRealSalesData();
+            loadSalesDataWithFilter();  // اسم تابع درست شد
         };
     </script>
 </body>
