@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.16.0</span>
+                <span class="footer-value" id="footerVersion">v2.17.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 16 (CHANNEL CHART)
+        // TOURBIN DASHBOARD - STEP 17 (FINAL WITH REAL DATA)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -837,7 +837,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.16.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.17.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -976,7 +976,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 11. UPDATE OTAs TABLE -----
+        // ----- 11. UPDATE OTAs TABLE (با داده‌های واقعی) -----
         function updateOTAsTable(otaSales) {
             const tbody = document.getElementById('otasTable');
             
@@ -995,7 +995,7 @@
             let html = '';
             
             sortedOTAs.forEach((ota, index) => {
-                const commission = ota.sales * 0.25;
+                const commission = ota.sales * 0.25; // تخمین 25% کمیسیون
                 const net = ota.sales - commission;
                 const share = ((ota.sales / totalOTASales) * 100).toFixed(1);
                 
@@ -1010,7 +1010,7 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 12. UPDATE TOURS TABLE -----
+        // ----- 12. UPDATE TOURS TABLE (با داده‌های واقعی) -----
         function updateToursTable(tourSales) {
             const tbody = document.getElementById('toursTable');
             
