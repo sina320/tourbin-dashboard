@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.10.0</span>
+                <span class="footer-value" id="footerVersion">v2.11.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 10 (INSPECT DATA)
+        // TOURBIN DASHBOARD - STEP 11 (FIXED FIELD NAMES)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -736,26 +736,24 @@
                     const price = data.total_price_usd || 0;
                     totalSales += price;
                     
+                    // Direct sales
                     if (data.channel === 'Direct') {
                         directSales += price;
                     }
                     
+                    // Agent sales - فقط اگر agent_name مقدار داشته باشد
                     if (data.agent_name && data.agent_name.trim() !== '') {
                         const agentName = data.agent_name;
-                        if (!agentSales[agentName]) {
-                            agentSales[agentName] = 0;
-                        }
-                        agentSales[agentName] += price;
+                        agentSales[agentName] = (agentSales[agentName] || 0) + price;
                     }
                     
+                    // OTA sales - اگر channel با OTA_ شروع شود
                     if (data.channel && data.channel.startsWith('OTA_')) {
                         const otaName = data.channel.replace('OTA_', '');
-                        if (!otaSales[otaName]) {
-                            otaSales[otaName] = 0;
-                        }
-                        otaSales[otaName] += price;
+                        otaSales[otaName] = (otaSales[otaName] || 0) + price;
                     }
                     
+                    // Tour sales - از product_title استفاده کن
                     if (data.product_title && data.product_title.trim() !== '') {
                         const tourName = data.product_title;
                         if (!tourSales[tourName]) {
@@ -815,7 +813,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.10.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.11.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -931,6 +929,7 @@
             let html = '';
             
             sortedTours.forEach((tour, index) => {
+                // پیدا کردن کانال اصلی برای این تور (ساده‌شده)
                 let channel = 'Mixed';
                 if (index === 0) channel = 'GYG';
                 else if (index === 1) channel = 'Viator';
@@ -939,7 +938,7 @@
                 else channel = 'Direct';
                 
                 html += `<tr>
-                    <td>${index + 1}. ${tour.name.substring(0, 20)}${tour.name.length > 20 ? '...' : ''}</td>
+                    <td>${index + 1}. ${tour.name.substring(0, 25)}${tour.name.length > 25 ? '...' : ''}</td>
                     <td>${tour.bookings}</td>
                     <td>$${tour.revenue.toFixed(2)}</td>
                     <td>${channel}</td>
