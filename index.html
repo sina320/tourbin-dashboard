@@ -692,38 +692,57 @@
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
 
-// ===== STEP 2: TEST DATABASE QUERY =====
-async function testDatabaseQuery() {
+
+// ===== STEP 3: LOAD REAL SALES DATA =====
+async function loadRealSalesData() {
     try {
-        console.log('🔍 Testing database query...');
+        console.log('📊 Loading real sales data...');
         
+        // گرفتن همه تراکنش‌ها
         const snapshot = await db.collection('sales_transactions')
-            .limit(5)
+            .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
             .get();
         
+        let totalSales = 0;
         const transactions = [];
+        
         snapshot.forEach(doc => {
-            transactions.push({
-                id: doc.id,
-                ...doc.data()
-            });
+            const data = doc.data();
+            transactions.push(data);
+            totalSales += data.total_price_usd || 0;
         });
         
-        console.log(`✅ Found ${transactions.length} transactions in database`);
+        console.log(`✅ Found ${transactions.length} transactions`);
+        console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
         
-        if (transactions.length > 0) {
-            console.log('📊 Sample transaction:', transactions[0]);
-        } else {
-            console.log('⚠️ No transactions found in database');
-        }
+        // آپدیت کارت Total Sales
+        document.getElementById('totalSales').innerHTML = `$${totalSales.toLocaleString()}`;
+        
+        // آپدیت کارت Commission (10% of sales)
+        const commission = totalSales * 0.1;
+        document.getElementById('commissionTotal').innerHTML = `$${commission.toLocaleString()}`;
+        
+        // آپدیت کارت Total PAX
+        let totalPax = 0;
+        transactions.forEach(t => {
+            totalPax += t.total_pax || 1;
+        });
+        document.getElementById('totalPax').innerHTML = totalPax.toLocaleString();
+        
+        // آپدیت کارت Avg Tour
+        const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
+        document.getElementById('avgTour').innerHTML = `$${avgTour}`;
         
     } catch (error) {
-        console.error('❌ Database query error:', error);
+        console.error('❌ Error loading sales data:', error);
     }
 }
 
 // اجرای تابع
-testDatabaseQuery();
+loadRealSalesData();
+
+
+            
         
         console.log(`✅ Found ${transactions.length} transactions in database`);
         
