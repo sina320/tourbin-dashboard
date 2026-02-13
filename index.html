@@ -552,7 +552,7 @@
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - FIXED VERSION
+        // TOURBIN DASHBOARD - STEP 3
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -571,17 +571,15 @@
         
         console.log('🔥 Firebase connected successfully!');
 
-        // ----- 3. CALENDAR SETUP (FIXED) -----
-        // تاریخ‌ها به فرمت YYYY-MM-DD
+        // ----- 3. CALENDAR SETUP -----
         const startDate = '2026-02-01';
         const endDate = '2026-02-12';
 
         flatpickr("#dateRangePicker", {
             mode: "range",
-            dateFormat: "Y-m-d",  // تغییر به فرمت ساده
+            dateFormat: "Y-m-d",
             defaultDate: [startDate, endDate],
             onChange: function(selectedDates, dateStr) {
-                // تبدیل به فرمت خوانا برای نمایش
                 const dates = dateStr.split(' to ');
                 if (dates.length === 2) {
                     const start = new Date(dates[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -591,7 +589,6 @@
             }
         });
 
-        // نمایش اولیه
         const startDisplay = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         const endDisplay = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
@@ -675,91 +672,62 @@
                     break;
             }
             
-            // آپدیت نمایش
             const startDisplay = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             const endDisplay = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
             
-            console.log('📅 Quick range:', range, startDisplay, '-', endDisplay);
+            console.log('📅 Quick range:', range);
         };
 
         // ----- 6. APPLY BUTTON -----
         document.getElementById('applyDateBtn').addEventListener('click', function() {
-            console.log('✅ Apply button clicked - will load data in next step');
+            console.log('✅ Apply button clicked');
         });
 
-        // ----- 7. INIT -----
+        // ----- 7. STEP 3: LOAD REAL SALES DATA -----
+        async function loadRealSalesData() {
+            try {
+                console.log('📊 Loading real sales data...');
+                
+                const snapshot = await db.collection('sales_transactions')
+                    .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
+                    .get();
+                
+                let totalSales = 0;
+                const transactions = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    transactions.push(data);
+                    totalSales += data.total_price_usd || 0;
+                });
+                
+                console.log(`✅ Found ${transactions.length} transactions`);
+                console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
+                
+                document.getElementById('totalSales').innerHTML = `$${totalSales.toLocaleString()}`;
+                
+                const commission = totalSales * 0.1;
+                document.getElementById('commissionTotal').innerHTML = `$${commission.toLocaleString()}`;
+                
+                let totalPax = 0;
+                transactions.forEach(t => {
+                    totalPax += t.total_pax || 1;
+                });
+                document.getElementById('totalPax').innerHTML = totalPax.toLocaleString();
+                
+                const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
+                document.getElementById('avgTour').innerHTML = `$${avgTour}`;
+                
+            } catch (error) {
+                console.error('❌ Error loading sales data:', error);
+            }
+        }
+
+        // ----- 8. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
-
-
-// ===== STEP 3: LOAD REAL SALES DATA =====
-async function loadRealSalesData() {
-    try {
-        console.log('📊 Loading real sales data...');
-        
-        // گرفتن همه تراکنش‌ها
-        const snapshot = await db.collection('sales_transactions')
-            .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
-            .get();
-        
-        let totalSales = 0;
-        const transactions = [];
-        
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            transactions.push(data);
-            totalSales += data.total_price_usd || 0;
-        });
-        
-        console.log(`✅ Found ${transactions.length} transactions`);
-        console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
-        
-        // آپدیت کارت Total Sales
-        document.getElementById('totalSales').innerHTML = `$${totalSales.toLocaleString()}`;
-        
-        // آپدیت کارت Commission (10% of sales)
-        const commission = totalSales * 0.1;
-        document.getElementById('commissionTotal').innerHTML = `$${commission.toLocaleString()}`;
-        
-        // آپدیت کارت Total PAX
-        let totalPax = 0;
-        transactions.forEach(t => {
-            totalPax += t.total_pax || 1;
-        });
-        document.getElementById('totalPax').innerHTML = totalPax.toLocaleString();
-        
-        // آپدیت کارت Avg Tour
-        const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
-        document.getElementById('avgTour').innerHTML = `$${avgTour}`;
-        
-    } catch (error) {
-        console.error('❌ Error loading sales data:', error);
-    }
-}
-
-// اجرای تابع
-loadRealSalesData();
-
-
-            
-        
-        console.log(`✅ Found ${transactions.length} transactions in database`);
-        
-        if (transactions.length > 0) {
-            console.log('📊 Sample transaction:', transactions[0]);
-        } else {
-            console.log('⚠️ No transactions found in database');
-        }
-        
-    } catch (error) {
-        console.error('❌ Database query error:', error);
-    }
-}
-
-// اجرای تابع
-testDatabaseQuery();
-            
+            loadRealSalesData();
         };
     </script>
 </body>
