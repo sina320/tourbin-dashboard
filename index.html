@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.5.0</span>
+                <span class="footer-value" id="footerVersion">v2.6.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - COMPLETE (STEPS 1-5)
+        // TOURBIN DASHBOARD - STEP 6 (WITH OTAs)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -690,7 +690,6 @@
                 const dateRangeText = document.getElementById('dateRangeText').innerHTML;
                 console.log('📅 Current date range:', dateRangeText);
                 
-                // برای الان از تاریخ‌های پیشفرض استفاده میکنیم
                 const startDate = '2026-02-01';
                 const endDate = '2026-02-12';
                 
@@ -705,6 +704,7 @@
                 let directSales = 0;
                 let totalPax = 0;
                 let agentSales = {};
+                let otaSales = {};
                 const transactions = [];
                 
                 snapshot.forEach(doc => {
@@ -726,12 +726,21 @@
                         agentSales[agentName] += price;
                     }
                     
+                    if (data.channel && data.channel.startsWith('OTA_')) {
+                        const otaName = data.channel.replace('OTA_', '');
+                        if (!otaSales[otaName]) {
+                            otaSales[otaName] = 0;
+                        }
+                        otaSales[otaName] += price;
+                    }
+                    
                     totalPax += data.total_pax || 1;
                 });
                 
                 console.log(`✅ Found ${transactions.length} transactions in this period`);
                 console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
                 console.log('👥 Agent sales:', agentSales);
+                console.log('🌍 OTA sales:', otaSales);
                 
                 // آپدیت کارت‌ها
                 document.getElementById('totalSales').innerHTML = `$${totalSales.toFixed(2)}`;
@@ -745,30 +754,30 @@
                 const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
                 document.getElementById('avgTour').innerHTML = `$${avgTour}`;
                 
-                // Target (ثابت موقت)
                 const targetPercent = ((totalSales / 100000) * 100).toFixed(0);
                 document.getElementById('targetPercent').innerHTML = `${targetPercent}%`;
                 
-                // رنگ فروش مستقیم
                 if (directSales === 0) {
                     document.getElementById('directSales').style.color = 'var(--tb-error)';
                 } else {
                     document.getElementById('directSales').style.color = 'var(--tb-navy)';
                 }
                 
-                // آپدیت جدول Agentها
+                // آپدیت جداول
                 updateAgentsTable(agentSales);
+                updateOTAsTable(otaSales);
                 
                 // آپدیت فوتر
                 const now = new Date();
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.5.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.6.0 · Data: ${now.toISOString().split('T')[0]}`;
                 
             } catch (error) {
                 console.error('❌ Error loading sales data:', error);
                 document.getElementById('agentsTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
+                document.getElementById('otasTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
             }
         }
 
@@ -822,7 +831,41 @@
             tbody.innerHTML = html;
         }
 
-        // ----- 9. INIT -----
+        // ----- 9. UPDATE OTAs TABLE -----
+        function updateOTAsTable(otaSales) {
+            const tbody = document.getElementById('otasTable');
+            
+            const sortedOTAs = Object.entries(otaSales)
+                .map(([name, sales]) => ({ name, sales }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+            
+            if (sortedOTAs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>';
+                return;
+            }
+            
+            const totalOTASales = sortedOTAs.reduce((sum, ota) => sum + ota.sales, 0);
+            
+            let html = '';
+            
+            sortedOTAs.forEach((ota, index) => {
+                const commission = ota.sales * 0.25;
+                const net = ota.sales - commission;
+                const share = ((ota.sales / totalOTASales) * 100).toFixed(1);
+                
+                html += `<tr>
+                    <td>${index + 1}. ${ota.name}</td>
+                    <td>$${ota.sales.toFixed(2)}</td>
+                    <td>$${net.toFixed(2)}</td>
+                    <td>${share}%</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ----- 10. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
             loadSalesDataWithFilter();
