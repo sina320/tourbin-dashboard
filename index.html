@@ -554,14 +554,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.21.0</span>
+                <span class="footer-value" id="footerVersion">v2.22.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 21 (FINAL WORKING VERSION)
+        // TOURBIN DASHBOARD - STEP 22 (FINAL WORKING VERSION)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -767,31 +767,23 @@
                     const price = data.total_price_usd || 0;
                     totalSales += price;
                     
-                    // Direct sales
                     if (data.channel === 'Direct') {
                         directSales += price;
                     }
                     
-                    // Agent sales
                     if (data.agent_name && data.agent_name.trim() !== '') {
-                        const agentName = data.agent_name;
-                        agentSales[agentName] = (agentSales[agentName] || 0) + price;
+                        agentSales[data.agent_name] = (agentSales[data.agent_name] || 0) + price;
                     }
                     
-                    // OTA sales
                     if (data.channel && typeof data.channel === 'string' && data.channel.startsWith('OTA_')) {
                         const otaName = data.channel.replace('OTA_', '');
                         otaSales[otaName] = (otaSales[otaName] || 0) + price;
                     }
                     
-                    // Tour sales
                     if (data.product_title && data.product_title.trim() !== '') {
                         const tourName = data.product_title.trim();
                         if (!tourSales[tourName]) {
-                            tourSales[tourName] = {
-                                revenue: 0,
-                                bookings: 0
-                            };
+                            tourSales[tourName] = { revenue: 0, bookings: 0 };
                         }
                         tourSales[tourName].revenue += price;
                         tourSales[tourName].bookings += 1;
@@ -802,21 +794,17 @@
                 
                 console.log(`✅ Found ${transactions.length} transactions in this period`);
                 console.log(`💰 Total sales: $${totalSales.toFixed(2)}`);
+                console.log('👥 Agent sales:', agentSales);
+                console.log('🌍 OTA sales:', otaSales);
+                console.log('🗺️ Tour sales:', tourSales);
                 
                 // آپدیت کارت‌ها
                 document.getElementById('totalSales').innerHTML = `$${totalSales.toFixed(2)}`;
                 document.getElementById('directSales').innerHTML = `$${directSales.toFixed(2)}`;
-                
-                const commission = totalSales * 0.1;
-                document.getElementById('commissionTotal').innerHTML = `$${commission.toFixed(2)}`;
-                
+                document.getElementById('commissionTotal').innerHTML = `$${(totalSales * 0.1).toFixed(2)}`;
                 document.getElementById('totalPax').innerHTML = totalPax;
-                
-                const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
-                document.getElementById('avgTour').innerHTML = `$${avgTour}`;
-                
-                const targetPercent = ((totalSales / 100000) * 100).toFixed(0);
-                document.getElementById('targetPercent').innerHTML = `${targetPercent}%`;
+                document.getElementById('avgTour').innerHTML = `$${transactions.length ? Math.round(totalSales / transactions.length) : 0}`;
+                document.getElementById('targetPercent').innerHTML = `${((totalSales / 100000) * 100).toFixed(0)}%`;
                 
                 if (directSales === 0) {
                     document.getElementById('directSales').style.color = 'var(--tb-error)';
@@ -825,14 +813,9 @@
                 }
                 
                 // آپدیت جداول
-                console.log('👥 Agent sales:', agentSales);
-                console.log('🌍 OTA sales:', otaSales);
-                console.log('🗺️ Tour sales:', tourSales);
-                
-                // جداول را مستقیماً از اینجا آپدیت می‌کنیم
-                updateAgentsTableDirect(agentSales);
-                updateOTAsTableDirect(otaSales);
-                updateToursTableDirect(tourSales);
+                updateAgentsTable(agentSales);
+                updateOTAsTable(otaSales);
+                updateToursTable(tourSales);
                 
                 // آپدیت نمودارها
                 updateSalesChart(transactions, startDate, endDate);
@@ -841,9 +824,8 @@
                 // آپدیت فوتر
                 const now = new Date();
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
-                    now.getHours().toString().padStart(2,'0') + ':' + 
-                    now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.21.0 · Data: ${now.toISOString().split('T')[0]}`;
+                    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+                document.getElementById('footerVersion').innerHTML = `v2.22.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -851,12 +833,10 @@
             }
         }
 
-        // ----- 8. DIRECT TABLE UPDATES -----
-        function updateAgentsTableDirect(agentSales) {
+        // ----- 8. UPDATE AGENTS TABLE -----
+        function updateAgentsTable(agentSales) {
             const tbody = document.getElementById('agentsTable');
-            
             const entries = Object.entries(agentSales);
-            console.log('Agent entries:', entries);
             
             if (entries.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>';
@@ -880,14 +860,13 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
-            console.log('✅ Agents table updated directly');
+            console.log('✅ Agents table updated');
         }
 
-        function updateOTAsTableDirect(otaSales) {
+        // ----- 9. UPDATE OTAs TABLE -----
+        function updateOTAsTable(otaSales) {
             const tbody = document.getElementById('otasTable');
-            
             const entries = Object.entries(otaSales);
-            console.log('OTA entries:', entries);
             
             if (entries.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No OTA sales in this period</td></tr>';
@@ -904,8 +883,7 @@
             let html = '';
             sorted.forEach((ota, i) => {
                 let rate = ota.name === 'GetYourGuide' ? 0.30 : 0.25;
-                const commission = ota.sales * rate;
-                const net = ota.sales - commission;
+                const net = ota.sales * (1 - rate);
                 const share = ((ota.sales / total) * 100).toFixed(1);
                 html += `<tr>
                     <td>${i+1}. ${ota.name}</td>
@@ -915,14 +893,13 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
-            console.log('✅ OTAs table updated directly');
+            console.log('✅ OTAs table updated');
         }
 
-        function updateToursTableDirect(tourSales) {
+        // ----- 10. UPDATE TOURS TABLE -----
+        function updateToursTable(tourSales) {
             const tbody = document.getElementById('toursTable');
-            
             const entries = Object.entries(tourSales);
-            console.log('Tour entries:', entries);
             
             if (entries.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No tour sales in this period</td></tr>';
@@ -949,50 +926,33 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
-            console.log('✅ Tours table updated directly');
+            console.log('✅ Tours table updated');
         }
 
-        // ----- 9. UPDATE SALES CHART -----
+        // ----- 11. UPDATE SALES CHART -----
         function updateSalesChart(transactions, startDate, endDate) {
             const salesByDate = {};
-            
             transactions.forEach(t => {
-                const date = t.report_date;
-                const price = t.total_price_usd || 0;
-                
-                if (date) {
-                    if (!salesByDate[date]) {
-                        salesByDate[date] = 0;
-                    }
-                    salesByDate[date] += price;
+                if (t.report_date) {
+                    salesByDate[t.report_date] = (salesByDate[t.report_date] || 0) + (t.total_price_usd || 0);
                 }
             });
             
-            const labels = [];
-            const data = [];
-            
+            const labels = [], data = [];
             let currentDate = new Date(startDate);
             const lastDate = new Date(endDate);
             
             while (currentDate <= lastDate) {
                 const dateStr = currentDate.toISOString().split('T')[0];
-                const displayDate = dateStr.slice(5); // MM-DD
-                
-                labels.push(displayDate);
+                labels.push(dateStr.slice(5));
                 data.push(salesByDate[dateStr] || 0);
-                
                 currentDate.setDate(currentDate.getDate() + 1);
             }
             
-            // محاسبه میانگین متحرک ۳ روزه
             const movingAvg = [];
             for (let i = 0; i < data.length; i++) {
-                if (i < 2) {
-                    movingAvg.push(null);
-                } else {
-                    const avg = (data[i] + data[i-1] + data[i-2]) / 3;
-                    movingAvg.push(parseFloat(avg.toFixed(2)));
-                }
+                if (i < 2) movingAvg.push(null);
+                else movingAvg.push(parseFloat(((data[i] + data[i-1] + data[i-2]) / 3).toFixed(2)));
             }
             
             if (window.salesChart) {
@@ -1003,34 +963,26 @@
             }
         }
 
-        // ----- 10. UPDATE CHANNEL CHART -----
+        // ----- 12. UPDATE CHANNEL CHART -----
         function updateChannelChart(transactions) {
-            let otaTotal = 0;
-            let agentTotal = 0;
-            let directTotal = 0;
-            
+            let ota = 0, agent = 0, direct = 0;
             transactions.forEach(t => {
                 const price = t.total_price_usd || 0;
                 const channel = t.channel || '';
-                
-                if (channel === 'Direct') {
-                    directTotal += price;
-                } else if (channel === 'Agent') {
-                    agentTotal += price;
-                } else if (channel && typeof channel === 'string' && channel.startsWith('OTA_')) {
-                    otaTotal += price;
-                }
+                if (channel === 'Direct') direct += price;
+                else if (channel === 'Agent') agent += price;
+                else if (channel?.startsWith('OTA_')) ota += price;
             });
             
-            console.log('📊 Channel totals:', { otaTotal, agentTotal, directTotal });
+            console.log('📊 Channel totals:', { ota, agent, direct });
             
             if (window.channelChart) {
-                window.channelChart.data.datasets[0].data = [otaTotal, agentTotal, directTotal];
+                window.channelChart.data.datasets[0].data = [ota, agent, direct];
                 window.channelChart.update();
             }
         }
 
-        // ----- 11. INIT -----
+        // ----- 13. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
             loadSalesDataWithFilter();
