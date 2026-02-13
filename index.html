@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.9.0</span>
+                <span class="footer-value" id="footerVersion">v2.10.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 9 (INSPECT DATA)
+        // TOURBIN DASHBOARD - STEP 10 (INSPECT DATA)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -775,7 +775,9 @@
                 console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
                 
                 if (transactions.length > 0) {
-                    console.log('📋 First transaction structure:', transactions[0]);
+                    console.log('📋 First transaction FULL structure:');
+                    console.log(JSON.stringify(transactions[0], null, 2));
+                    console.log('📋 Available fields:', Object.keys(transactions[0]));
                 }
                 
                 console.log('👥 Agent sales:', agentSales);
@@ -813,7 +815,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.9.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.10.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
