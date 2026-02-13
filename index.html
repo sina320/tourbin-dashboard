@@ -471,7 +471,7 @@
                         <tr><th>Agent</th><th>Sales</th><th>Commission</th><th>Trend</th></tr>
                     </thead>
                     <tbody id="agentsTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading agent data...</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -543,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.11.0</span>
+                <span class="footer-value" id="footerVersion">v2.12.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 11 (FIXED FIELD NAMES)
+        // TOURBIN DASHBOARD - STEP 12 (FINAL OTA/TOUR FIX)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -736,7 +736,7 @@
                     const price = data.total_price_usd || 0;
                     totalSales += price;
                     
-                    // Direct sales
+                    // Direct sales - اگر channel دقیقاً 'Direct' باشد
                     if (data.channel === 'Direct') {
                         directSales += price;
                     }
@@ -748,7 +748,7 @@
                     }
                     
                     // OTA sales - اگر channel با OTA_ شروع شود
-                    if (data.channel && data.channel.startsWith('OTA_')) {
+                    if (data.channel && typeof data.channel === 'string' && data.channel.startsWith('OTA_')) {
                         const otaName = data.channel.replace('OTA_', '');
                         otaSales[otaName] = (otaSales[otaName] || 0) + price;
                     }
@@ -813,7 +813,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.11.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.12.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
