@@ -552,7 +552,7 @@
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - ONLY FIREBASE CONNECTION
+        // TOURBIN DASHBOARD - FIXED VERSION
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -570,19 +570,33 @@
         const db = firebase.firestore(app);
         
         console.log('🔥 Firebase connected successfully!');
-        console.log('📦 Project:', firebaseConfig.projectId);
 
-        // ----- 3. CALENDAR SETUP -----
+        // ----- 3. CALENDAR SETUP (FIXED) -----
+        // تاریخ‌ها به فرمت YYYY-MM-DD
+        const startDate = '2026-02-01';
+        const endDate = '2026-02-12';
+
         flatpickr("#dateRangePicker", {
             mode: "range",
-            dateFormat: "M j, Y",
-            defaultDate: ["2026-02-01", "2026-02-12"],
+            dateFormat: "Y-m-d",  // تغییر به فرمت ساده
+            defaultDate: [startDate, endDate],
             onChange: function(selectedDates, dateStr) {
-                document.getElementById('dateRangeText').innerHTML = dateStr.replace('to', '—');
+                // تبدیل به فرمت خوانا برای نمایش
+                const dates = dateStr.split(' to ');
+                if (dates.length === 2) {
+                    const start = new Date(dates[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const end = new Date(dates[1]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    document.getElementById('dateRangeText').innerHTML = `${start} — ${end}`;
+                }
             }
         });
 
-        // ----- 4. CHARTS (SAMPLE DATA) -----
+        // نمایش اولیه
+        const startDisplay = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const endDisplay = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
+
+        // ----- 4. CHARTS -----
         const ctx1 = document.getElementById('salesChart').getContext('2d');
         window.salesChart = new Chart(ctx1, {
             type: 'line',
@@ -596,7 +610,11 @@
                     tension: 0.2
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: true, 
+                plugins: { legend: { display: false } } 
+            }
         });
 
         const ctx2 = document.getElementById('channelChart').getContext('2d');
@@ -615,7 +633,12 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 cutout: '65%',
-                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { usePointStyle: true, boxWidth: 8 } 
+                    } 
+                }
             }
         });
 
@@ -623,7 +646,41 @@
         window.setQuickRange = function(range) {
             document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-            console.log('📅 Quick range selected:', range);
+            
+            const today = new Date();
+            let start, end;
+            
+            switch(range) {
+                case 'today':
+                    start = today;
+                    end = today;
+                    break;
+                case 'week':
+                    start = new Date(today);
+                    start.setDate(today.getDate() - 7);
+                    end = today;
+                    break;
+                case 'month':
+                    start = new Date(today);
+                    start.setDate(today.getDate() - 30);
+                    end = today;
+                    break;
+                case 'thisMonth':
+                    start = new Date(today.getFullYear(), today.getMonth(), 1);
+                    end = today;
+                    break;
+                case 'lastMonth':
+                    start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    end = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+            }
+            
+            // آپدیت نمایش
+            const startDisplay = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const endDisplay = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
+            
+            console.log('📅 Quick range:', range, startDisplay, '-', endDisplay);
         };
 
         // ----- 6. APPLY BUTTON -----
@@ -633,7 +690,7 @@
 
         // ----- 7. INIT -----
         window.onload = function() {
-            console.log('🚀 TourBin Dashboard ready');
+            console.log('🚀 TourBin Dashboard ready - No errors');
         };
     </script>
 </body>
