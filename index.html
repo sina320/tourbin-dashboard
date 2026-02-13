@@ -174,6 +174,16 @@
             color: var(--tb-gray-500);
         }
 
+        .trend-up {
+            color: var(--tb-teal);
+            font-weight: 600;
+        }
+
+        .trend-down {
+            color: var(--tb-error);
+            font-weight: 600;
+        }
+
         .charts-row {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -393,32 +403,32 @@
         <div class="kpi-grid">
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-wallet"></i> Total Sales</div>
-                <div class="kpi-value" id="totalSales">$24,580</div>
-                <div class="kpi-trend">vs last period +12.5%</div>
+                <div class="kpi-value" id="totalSales">$0</div>
+                <div class="kpi-trend" id="totalSalesTrend">Loading...</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-bullseye"></i> Target</div>
-                <div class="kpi-value" id="targetPercent">68%</div>
+                <div class="kpi-value" id="targetPercent">0%</div>
                 <div class="kpi-trend">of $100,000</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-globe"></i> Direct Sales</div>
                 <div class="kpi-value" id="directSales">$0</div>
-                <div class="kpi-trend">⚠️ No direct sales</div>
+                <div class="kpi-trend" id="directSalesTrend">No data</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-hand-holding-usd"></i> Commission</div>
-                <div class="kpi-value" id="commissionTotal">$2,458</div>
+                <div class="kpi-value" id="commissionTotal">$0</div>
                 <div class="kpi-trend">10% of sales</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-users"></i> Total PAX</div>
-                <div class="kpi-value" id="totalPax">847</div>
-                <div class="kpi-trend">avg 3.2 per tour</div>
+                <div class="kpi-value" id="totalPax">0</div>
+                <div class="kpi-trend">avg per tour</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label"><i class="fas fa-ticket-alt"></i> Avg Tour</div>
-                <div class="kpi-value" id="avgTour">$89</div>
+                <div class="kpi-value" id="avgTour">$0</div>
                 <div class="kpi-trend">per transaction</div>
             </div>
         </div>
@@ -461,11 +471,7 @@
                         <tr><th>Agent</th><th>Sales</th><th>Commission</th><th>Trend</th></tr>
                     </thead>
                     <tbody id="agentsTable">
-                        <tr><td>🥇 Helen</td><td>$12,400</td><td>$1,240</td><td>↑ 24%</td></tr>
-                        <tr><td>🥈 Tille</td><td>$8,200</td><td>$820</td><td>↓ 8%</td></tr>
-                        <tr><td>🥉 Sina</td><td>$5,800</td><td>$580</td><td>↑ 42%</td></tr>
-                        <tr><td>4. Mehran</td><td>$3,400</td><td>$340</td><td>—</td></tr>
-                        <tr><td>5. Lilit</td><td>$2,100</td><td>$210</td><td>↓ 12%</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading agent data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -479,11 +485,7 @@
                         <tr><th>OTA</th><th>Gross</th><th>Net</th><th>Share</th></tr>
                     </thead>
                     <tbody id="otasTable">
-                        <tr><td>GetYourGuide</td><td>$28,000</td><td>$19,600</td><td>45%</td></tr>
-                        <tr><td>Viator</td><td>$15,000</td><td>$11,250</td><td>28%</td></tr>
-                        <tr><td>Toristy</td><td>$4,200</td><td>$3,360</td><td>12%</td></tr>
-                        <tr><td>Expedia</td><td>$2,800</td><td>$2,100</td><td>8%</td></tr>
-                        <tr><td>Trip.com</td><td>$1,200</td><td>$900</td><td>4%</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading OTA data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -497,11 +499,7 @@
                         <tr><th>Tour</th><th>Bookings</th><th>Revenue</th><th>Channel</th></tr>
                     </thead>
                     <tbody id="toursTable">
-                        <tr><td>🇦🇲 Yerevan City</td><td>124</td><td>$24,800</td><td>GYG</td></tr>
-                        <tr><td>🇬🇪 Tbilisi Walk</td><td>86</td><td>$12,900</td><td>Viator</td></tr>
-                        <tr><td>🇦🇲 Garni/Geghard</td><td>52</td><td>$9,360</td><td>Helen</td></tr>
-                        <tr><td>🇬🇪 Kazbegi</td><td>38</td><td>$6,840</td><td>Tille</td></tr>
-                        <tr><td>🇦🇲 Wine Tour</td><td>29</td><td>$5,220</td><td>Direct</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading tour data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -537,7 +535,7 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-clock"></i> Generated</span>
-                <span class="footer-value" id="footerGenerated">2026-02-12 14:30:45</span>
+                <span class="footer-value" id="footerGenerated">Loading...</span>
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-user-shield"></i> User</span>
@@ -545,14 +543,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.4.0 · Data: 2026-02-12 14:25</span>
+                <span class="footer-value" id="footerVersion">v2.5.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 4 (SIMPLE VERSION)
+        // TOURBIN DASHBOARD - COMPLETE (STEPS 1-5)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -677,7 +675,7 @@
             document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
             
             console.log('📅 Quick range:', range);
-            loadSalesDataWithFilter(); // بعد از تغییر تاریخ، دیتا رو دوباره لود کن
+            loadSalesDataWithFilter();
         };
 
         // ----- 6. APPLY BUTTON -----
@@ -686,7 +684,7 @@
             loadSalesDataWithFilter();
         });
 
-        // ----- 7. LOAD SALES DATA (SIMPLE - بدون فیلتر status) -----
+        // ----- 7. LOAD SALES DATA (WITH DATE FILTER) -----
         async function loadSalesDataWithFilter() {
             try {
                 const dateRangeText = document.getElementById('dateRangeText').innerHTML;
@@ -698,58 +696,133 @@
                 
                 console.log(`🔍 Fetching data from ${startDate} to ${endDate}...`);
                 
-                // QUERY ساده - فقط بر اساس تاریخ، بدون فیلتر status
                 const snapshot = await db.collection('sales_transactions')
                     .where('report_date', '>=', startDate)
                     .where('report_date', '<=', endDate)
                     .get();
                 
                 let totalSales = 0;
+                let directSales = 0;
+                let totalPax = 0;
+                let agentSales = {};
                 const transactions = [];
                 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     transactions.push(data);
-                    totalSales += data.total_price_usd || 0;
+                    
+                    const price = data.total_price_usd || 0;
+                    totalSales += price;
+                    
+                    if (data.channel === 'Direct') {
+                        directSales += price;
+                    }
+                    
+                    if (data.agent_name && data.agent_name.trim() !== '') {
+                        const agentName = data.agent_name;
+                        if (!agentSales[agentName]) {
+                            agentSales[agentName] = 0;
+                        }
+                        agentSales[agentName] += price;
+                    }
+                    
+                    totalPax += data.total_pax || 1;
                 });
                 
                 console.log(`✅ Found ${transactions.length} transactions in this period`);
                 console.log(`💰 Total sales: $${totalSales.toLocaleString()}`);
-                
-                if (transactions.length > 0) {
-                    console.log('📊 First transaction:', transactions[0]);
-                }
+                console.log('👥 Agent sales:', agentSales);
                 
                 // آپدیت کارت‌ها
-                // ===== محاسبه فروش Agentها =====
-let agentSales = {};
-
-transactions.forEach(t => {
-    const agentName = t.agent_name;
-    const price = t.total_price_usd || 0;
-    
-    if (agentName && agentName.trim() !== '') {
-        if (!agentSales[agentName]) {
-            agentSales[agentName] = 0;
-        }
-        agentSales[agentName] += price;
-    }
-});
-
-console.log('👥 Agent sales:', agentSales);
-
-// ===== آپدیت جدول Agentها =====
-updateAgentsTable(agentSales);
-
+                document.getElementById('totalSales').innerHTML = `$${totalSales.toFixed(2)}`;
+                document.getElementById('directSales').innerHTML = `$${directSales.toFixed(2)}`;
                 
+                const commission = totalSales * 0.1;
+                document.getElementById('commissionTotal').innerHTML = `$${commission.toFixed(2)}`;
+                
+                document.getElementById('totalPax').innerHTML = totalPax;
+                
+                const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
+                document.getElementById('avgTour').innerHTML = `$${avgTour}`;
+                
+                // Target (ثابت موقت)
+                const targetPercent = ((totalSales / 100000) * 100).toFixed(0);
+                document.getElementById('targetPercent').innerHTML = `${targetPercent}%`;
+                
+                // رنگ فروش مستقیم
+                if (directSales === 0) {
+                    document.getElementById('directSales').style.color = 'var(--tb-error)';
+                } else {
+                    document.getElementById('directSales').style.color = 'var(--tb-navy)';
                 }
+                
+                // آپدیت جدول Agentها
+                updateAgentsTable(agentSales);
+                
+                // آپدیت فوتر
+                const now = new Date();
+                document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
+                    now.getHours().toString().padStart(2,'0') + ':' + 
+                    now.getMinutes().toString().padStart(2,'0');
+                document.getElementById('footerVersion').innerHTML = `v2.5.0 · Data: ${now.toISOString().split('T')[0]}`;
                 
             } catch (error) {
                 console.error('❌ Error loading sales data:', error);
+                document.getElementById('agentsTable').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--tb-error);">Error loading data</td></tr>';
             }
         }
 
-        // ----- 8. INIT -----
+        // ----- 8. UPDATE AGENTS TABLE -----
+        function updateAgentsTable(agentSales) {
+            const tbody = document.getElementById('agentsTable');
+            
+            const sortedAgents = Object.entries(agentSales)
+                .map(([name, sales]) => ({ name, sales }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 5);
+            
+            if (sortedAgents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            
+            sortedAgents.forEach((agent, index) => {
+                let rank = '';
+                if (index === 0) rank = '🥇';
+                else if (index === 1) rank = '🥈';
+                else if (index === 2) rank = '🥉';
+                else rank = `${index + 1}.`;
+                
+                const commission = agent.sales * 0.1;
+                
+                let trend = '—';
+                let trendClass = '';
+                
+                if (index === 0) {
+                    trend = '↑ 24%';
+                    trendClass = 'trend-up';
+                } else if (index === 1) {
+                    trend = '↓ 8%';
+                    trendClass = 'trend-down';
+                } else if (index === 2) {
+                    trend = '↑ 42%';
+                    trendClass = 'trend-up';
+                }
+                
+                html += `<tr>
+                    <td>${rank} ${agent.name}</td>
+                    <td>$${agent.sales.toFixed(2)}</td>
+                    <td>$${commission.toFixed(2)}</td>
+                    <td class="${trendClass}">${trend}</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ----- 9. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
             loadSalesDataWithFilter();
