@@ -482,7 +482,7 @@
                         <tr><th>Agent</th><th>Sales</th><th>Commission</th><th>Trend</th></tr>
                     </thead>
                     <tbody id="agentsTable">
-                        <tr><td colspan="4" style="text-align: center; padding: 20px;">No agent sales in this period</td></tr>
+                        <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading agent data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -554,14 +554,14 @@
             </div>
             <div class="footer-item">
                 <span class="footer-label"><i class="fas fa-code-branch"></i> Version</span>
-                <span class="footer-value" id="footerVersion">v2.18.0</span>
+                <span class="footer-value" id="footerVersion">v2.19.0</span>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 18 (FINAL ENHANCEMENTS)
+        // TOURBIN DASHBOARD - STEP 19 (FIX TABLE DISPLAY)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -848,7 +848,7 @@
                 document.getElementById('footerGenerated').innerHTML = now.toISOString().split('T')[0] + ' ' + 
                     now.getHours().toString().padStart(2,'0') + ':' + 
                     now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('footerVersion').innerHTML = `v2.18.0 · Data: ${now.toISOString().split('T')[0]}`;
+                document.getElementById('footerVersion').innerHTML = `v2.19.0 · Data: ${now.toISOString().split('T')[0]}`;
                 document.getElementById('footerPeriod').innerHTML = document.getElementById('dateRangeText').innerHTML;
                 
             } catch (error) {
@@ -939,6 +939,7 @@
 
         // ----- 10. UPDATE AGENTS TABLE -----
         function updateAgentsTable(agentSales) {
+            console.log('🔄 Updating Agents table with data:', agentSales);
             const tbody = document.getElementById('agentsTable');
             
             const sortedAgents = Object.entries(agentSales)
@@ -979,6 +980,7 @@
 
         // ----- 11. UPDATE OTAs TABLE -----
         function updateOTAsTable(otaSales) {
+            console.log('🔄 Updating OTAs table with data:', otaSales);
             const tbody = document.getElementById('otasTable');
             
             const sortedOTAs = Object.entries(otaSales)
@@ -1018,6 +1020,7 @@
 
         // ----- 12. UPDATE TOURS TABLE -----
         function updateToursTable(tourSales) {
+            console.log('🔄 Updating Tours table with data:', tourSales);
             const tbody = document.getElementById('toursTable');
             
             const sortedTours = Object.entries(tourSales)
