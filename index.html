@@ -721,32 +721,27 @@
                 }
                 
                 // آپدیت کارت‌ها
-                document.getElementById('totalSales').innerHTML = `$${totalSales.toLocaleString()}`;
+                // ===== محاسبه فروش Agentها =====
+let agentSales = {};
+
+transactions.forEach(t => {
+    const agentName = t.agent_name;
+    const price = t.total_price_usd || 0;
+    
+    if (agentName && agentName.trim() !== '') {
+        if (!agentSales[agentName]) {
+            agentSales[agentName] = 0;
+        }
+        agentSales[agentName] += price;
+    }
+});
+
+console.log('👥 Agent sales:', agentSales);
+
+// ===== آپدیت جدول Agentها =====
+updateAgentsTable(agentSales);
+
                 
-                const commission = totalSales * 0.1;
-                document.getElementById('commissionTotal').innerHTML = `$${commission.toLocaleString()}`;
-                
-                let totalPax = 0;
-                transactions.forEach(t => {
-                    totalPax += t.total_pax || 1;
-                });
-                document.getElementById('totalPax').innerHTML = totalPax.toLocaleString();
-                
-                const avgTour = transactions.length ? Math.round(totalSales / transactions.length) : 0;
-                document.getElementById('avgTour').innerHTML = `$${avgTour}`;
-                
-                // بررسی فروش مستقیم
-                let directSales = 0;
-                transactions.forEach(t => {
-                    if (t.channel === 'Direct') directSales += t.total_price_usd || 0;
-                });
-                
-                document.getElementById('directSales').innerHTML = `$${directSales.toLocaleString()}`;
-                
-                if (directSales === 0) {
-                    document.getElementById('directSales').style.color = 'var(--tb-error)';
-                } else {
-                    document.getElementById('directSales').style.color = 'var(--tb-navy)';
                 }
                 
             } catch (error) {
