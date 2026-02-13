@@ -552,7 +552,7 @@
 
     <script>
         // ============================================
-        // TOURBIN DASHBOARD - STEP 4
+        // TOURBIN DASHBOARD - STEP 4 (SIMPLE VERSION)
         // ============================================
 
         // ----- 1. FIREBASE CONFIG -----
@@ -677,15 +677,16 @@
             document.getElementById('dateRangeText').innerHTML = `${startDisplay} — ${endDisplay}`;
             
             console.log('📅 Quick range:', range);
+            loadSalesDataWithFilter(); // بعد از تغییر تاریخ، دیتا رو دوباره لود کن
         };
 
         // ----- 6. APPLY BUTTON -----
         document.getElementById('applyDateBtn').addEventListener('click', function() {
             console.log('✅ Apply button clicked');
-            loadSalesDataWithFilter();  // با کلیک روی Apply دوباره دیتا لود میشه
+            loadSalesDataWithFilter();
         });
 
-        // ----- 7. STEP 4: LOAD SALES DATA WITH DATE FILTER -----
+        // ----- 7. LOAD SALES DATA (SIMPLE - بدون فیلتر status) -----
         async function loadSalesDataWithFilter() {
             try {
                 const dateRangeText = document.getElementById('dateRangeText').innerHTML;
@@ -697,8 +698,8 @@
                 
                 console.log(`🔍 Fetching data from ${startDate} to ${endDate}...`);
                 
+                // QUERY ساده - فقط بر اساس تاریخ، بدون فیلتر status
                 const snapshot = await db.collection('sales_transactions')
-                    .where('status', 'in', ['CONFIRMED', 'ARRIVED'])
                     .where('report_date', '>=', startDate)
                     .where('report_date', '<=', endDate)
                     .get();
@@ -756,7 +757,7 @@
         // ----- 8. INIT -----
         window.onload = function() {
             console.log('🚀 TourBin Dashboard ready - No errors');
-            loadSalesDataWithFilter();  // اسم تابع درست شد
+            loadSalesDataWithFilter();
         };
     </script>
 </body>
